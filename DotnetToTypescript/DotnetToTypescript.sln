@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetToTypescript", "DotnetToTypescript\DotnetToTypescript.csproj", "{5934FD36-AA88-4A5D-966C-03D5FBFE0E5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleLibrary", "SampleLibrary\SampleLibrary.csproj", "{FECE1669-35B3-43C9-A6DC-2A7AE5E7E835}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5934FD36-AA88-4A5D-966C-03D5FBFE0E5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5934FD36-AA88-4A5D-966C-03D5FBFE0E5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5934FD36-AA88-4A5D-966C-03D5FBFE0E5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5934FD36-AA88-4A5D-966C-03D5FBFE0E5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FECE1669-35B3-43C9-A6DC-2A7AE5E7E835}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FECE1669-35B3-43C9-A6DC-2A7AE5E7E835}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FECE1669-35B3-43C9-A6DC-2A7AE5E7E835}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FECE1669-35B3-43C9-A6DC-2A7AE5E7E835}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
