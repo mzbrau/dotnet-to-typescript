@@ -6,22 +6,22 @@ Converts dotnet classes to typescript definitions
 1. Define 2 attributes in your assembly:
 
 ```csharp
-public class ScriptAttribute : Attribute
+public class JavascriptTypeAttribute : Attribute
 {
 }
 
-public class ScriptCreateAttribute : Attribute
+public class JavascriptObjectAttribute : Attribute
 {
     public string Name { get; }
 
-    public ScriptCreateAttribute(string name)
+    public JavascriptObjectAttribute(string name)
     {
         Name = name;
     }
 }
 ```
-2. Decorate any classes that are part of the javascript interface with the `[Script]` attribute.
-3. Decorate any classes that are added into the javascript engine context with the `[ScriptCreate]` attribute, including the object name.
+2. Decorate any classes that are part of the javascript interface with the `[JavascriptType]` attribute.
+3. Decorate any classes that are added into the javascript engine context with the `[JavascriptObject]` attribute, including the object name.
 
 4. Build your application
 

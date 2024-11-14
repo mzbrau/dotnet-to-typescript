@@ -1,7 +1,7 @@
 ﻿namespace SampleLibrary;
 
-[Script]
-[ScriptCreate("mike")]
+[JavascriptType]
+[JavascriptObject("mike")]
 public class User
 {
     public string Name { get; set; }

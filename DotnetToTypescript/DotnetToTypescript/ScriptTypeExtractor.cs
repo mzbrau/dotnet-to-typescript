@@ -8,23 +8,23 @@ public class ScriptTypeExtractor : IScriptTypeExtractor
     
     public List<Type> ExtractScriptClasses(Assembly assembly)
     {
-        var scriptAttribute = assembly.GetTypes().FirstOrDefault(t => t.Name == "ScriptAttribute");
-        var scriptCreateAttribute = assembly.GetTypes().FirstOrDefault(t => t.Name == "ScriptCreateAttribute");
+        var javascriptTypeAttribute = assembly.GetTypes().FirstOrDefault(t => t.Name == "JavascriptTypeAttribute");
+        var javascriptObjectAttribute = assembly.GetTypes().FirstOrDefault(t => t.Name == "JavascriptObjectAttribute");
 
-        if (scriptAttribute == null)
+        if (javascriptTypeAttribute == null)
             throw new Exception("No attribute named 'Script' found.");
         
-        if (scriptCreateAttribute == null)
+        if (javascriptObjectAttribute == null)
             throw new Exception("No attribute named 'ScriptCreate' found.");
 
         var scriptClasses = assembly.GetTypes()
-            .Where(t => t is { IsClass: true, IsPublic: true } && t.GetCustomAttributes(scriptAttribute, false).Any())
+            .Where(t => t is { IsClass: true, IsPublic: true } && t.GetCustomAttributes(javascriptTypeAttribute, false).Any())
             .ToList();
 
         foreach (var type in scriptClasses)
         {
             // Check for ScriptCreate attribute
-            var createAttribute = type.GetCustomAttributes(scriptCreateAttribute, false).FirstOrDefault();
+            var createAttribute = type.GetCustomAttributes(javascriptObjectAttribute, false).FirstOrDefault();
             if (createAttribute != null)
             {
                 var createName = createAttribute.GetType().GetProperty("Name")?.GetValue(createAttribute)?.ToString();

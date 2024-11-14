@@ -1,6 +1,6 @@
 namespace SampleLibrary;
 
-[Script]
+[JavascriptType]
 public class Car
 {
     public string Model { get; set; }
