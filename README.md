@@ -53,7 +53,6 @@ Mark classes that should be available to JavaScript:
 ```csharp
 [JavascriptType] // Adds a definition for the class
 [JavascriptObject("car")] // Adds an instance of the class to the javascript context
-[JavascriptType]
 public class Car : IVehicle
 {
     public string Make { get; set; }
@@ -73,12 +72,12 @@ public class Car : IVehicle
 Run the tool against your assembly:
 
 ```bash
-dotnet-to-typescript path/to/your/assembly.dll
+dotnet-to-typescript generate path/to/your/assembly.dll
 ```
 Note that you can also specify multiple assemblies to generate definitions for:
 
 ```bash
-dotnet-to-typescript path/to/your/assembly1.dll path/to/your/assembly2.dll
+dotnet-to-typescript generate path/to/your/assembly1.dll path/to/your/assembly2.dll
 ```
 
 The attributes need to be defined in one of the assemblies.
@@ -102,7 +101,7 @@ declare class Car {
 }
 
 // assembly.ts
-/// <reference path="SampleLibrary.d.ts" />
+/// <reference path="assembly.d.ts" />
 let car = new Car();
 
 // Insert your script below
