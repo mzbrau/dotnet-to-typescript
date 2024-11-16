@@ -21,13 +21,13 @@ jobs:
         dotnet-version: 9.0.x
         
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore Source/DotnetToTypescript.sln
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build Source/DotnetToTypescript.sln --configuration Release --no-restore
       
     - name: Test
-      run: dotnet test --configuration Release --no-build
+      run: dotnet test Source/DotnetToTypescript.sln --configuration Release --no-build
       
     - name: Pack
       run: dotnet pack Source/DotnetToTypescript/DotnetToTypescript.csproj --configuration Release --no-build -o nupkg
