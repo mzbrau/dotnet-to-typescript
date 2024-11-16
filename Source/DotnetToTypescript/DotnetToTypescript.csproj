@@ -27,10 +27,12 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageIcon>logo.jpeg</PackageIcon>
         <MinVerTagPrefix>v</MinVerTagPrefix>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
         <None Include="..\..\Resources\logo.jpeg" Pack="true" PackagePath="\" />
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
