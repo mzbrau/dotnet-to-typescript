@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 if (args.Length == 0)
 {
-    Console.WriteLine("Usage: DllToTypeScript <path-to-dll>");
+    Console.WriteLine("Usage: DllToTypeScript <path-to-dll1> [path-to-dll2] ...");
     return;
 }
 
@@ -14,20 +14,22 @@ var definitionGenerator = serviceProvider.GetRequiredService<IDefinitionGenerato
 
 try
 {
-    string dllPath = args[0];
-    var assembly = assemblyLoader.LoadAssembly(dllPath);
-    var scriptClasses = scriptTypeExtractor.ExtractScriptClasses(assembly);
+    var scriptClasses = args.Select(a => assemblyLoader.LoadAssembly(a))
+        .SelectMany(assembly => scriptTypeExtractor.ExtractScriptClasses(assembly))
+        .ToList();
 
+    // Generate one combined definition file
+    var outputPathDts = Path.ChangeExtension(args[0], ".d.ts");
     var typeScriptDefinition = definitionGenerator.GenerateDefinitions(scriptClasses);
-    var outputPathDts = System.IO.Path.ChangeExtension(dllPath, ".d.ts");
-    System.IO.File.WriteAllText(outputPathDts, typeScriptDefinition);
+    File.WriteAllText(outputPathDts, typeScriptDefinition);
     Console.WriteLine($"TypeScript definition file created: {outputPathDts}");
 
+    // Generate one combined instance file
     var typeScriptInstances = definitionGenerator.GenerateInstances(scriptTypeExtractor.ScriptCreateNames, outputPathDts);
     if (!string.IsNullOrEmpty(typeScriptInstances))
     {
-        var outputPathTs = System.IO.Path.ChangeExtension(dllPath, ".ts");
-        System.IO.File.WriteAllText(outputPathTs, typeScriptInstances);
+        var outputPathTs = Path.ChangeExtension(args[0], ".ts");
+        File.WriteAllText(outputPathTs, typeScriptInstances);
         Console.WriteLine($"TypeScript instance file created: {outputPathTs}");
     }
 }

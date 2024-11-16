@@ -1,15 +1,13 @@
 using System.Reflection;
 using System.Text;
-using System.IO;
-using System.Linq;
 
 namespace DotnetToTypescript;
 
 public class TypeScriptDefinitionGenerator : IDefinitionGenerator
 {
-    private readonly TypeScriptTypeMapper _typeMapper = new TypeScriptTypeMapper();
+    private readonly TypeScriptTypeMapper _typeMapper = new();
 
-    public string GenerateDefinitions(List<Type> scriptClasses)
+    public string GenerateDefinitions(IEnumerable<Type> scriptClasses)
     {
         var sb = new StringBuilder();
         var processedTypes = new HashSet<Type>();
@@ -50,8 +48,8 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
 
     private void ProcessClass(Type type, StringBuilder sb, HashSet<Type> processedTypes)
     {
-        if (processedTypes.Contains(type)) return;
-        processedTypes.Add(type);
+        if (!processedTypes.Add(type)) 
+            return;
 
         sb.AppendLine($"declare class {type.Name} {{");
 

@@ -2,7 +2,7 @@ namespace DotnetToTypescript;
 
 public interface IDefinitionGenerator
 {
-    string GenerateDefinitions(List<Type> scriptClasses);
+    string GenerateDefinitions(IEnumerable<Type> scriptClasses);
     
     string GenerateInstances(Dictionary<Type, string> scriptCreateNames, string definitionPath);
 }
