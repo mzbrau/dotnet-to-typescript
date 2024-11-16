@@ -6,7 +6,32 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <MinVerTagPrefix>v</MinVerTagPrefix>
+        <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dotnet-to-typescript</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+        
+    <PackageId>dotnet-to-typescript</PackageId>
+    <Authors>MZBRAU</Authors>
+    <Description>Converts .NET classes to TypeScript definitions</Description>
+
     </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>dotnet-to-typescript</PackageId>
+        <Authors>mzbrau</Authors>
+        <Description>Converts .NET classes to TypeScript definitions.</Description>
+        <PackageTags>c# typescript javascript jint convert tool</PackageTags>
+        <PackageProjectUrl>https://github.com/mzbrau/dotnet-to-typescript</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/mzbrau/dotnet-to-typescript</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageIcon>logo.jpeg</PackageIcon>
+        <MinVerTagPrefix>v</MinVerTagPrefix>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\Resources\logo.jpeg" Pack="true" PackagePath="\" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
