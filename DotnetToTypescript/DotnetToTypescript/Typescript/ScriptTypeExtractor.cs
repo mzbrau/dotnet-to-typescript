@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 
 namespace DotnetToTypescript.Typescript;
 
@@ -7,6 +8,12 @@ public class ScriptTypeExtractor : IScriptTypeExtractor
     private Type? _typeAttribute;
     private Type? _objectAttribute;
     public Dictionary<Type, string> ScriptCreateNames { get; } = new();
+    private readonly ILogger<ScriptTypeExtractor> _logger;
+
+    public ScriptTypeExtractor(ILogger<ScriptTypeExtractor> logger)
+    {
+        _logger = logger;
+    }
 
     public List<Type> ExtractScriptClasses(Assembly assembly)
     {
@@ -50,6 +57,11 @@ public class ScriptTypeExtractor : IScriptTypeExtractor
                 var name = objectAttribute.GetType().GetProperty("Name")?.GetValue(objectAttribute) as string;
                 if (!string.IsNullOrEmpty(name))
                 {
+                    if (name == type.Name)
+                    {
+                        _logger.LogWarning("JavascriptObject name '{Name}' matches class name for type {Type}. This is not supported. Appending '2' to the name.", name, type.Name);
+                        name = $"{name}2";
+                    }
                     ScriptCreateNames[type] = name;
                 }
             }

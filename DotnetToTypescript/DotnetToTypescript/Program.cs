@@ -1,12 +1,24 @@
 ﻿using Cocona;
-using DotnetToTypescript;
 using DotnetToTypescript.AssemblyHandling;
 using DotnetToTypescript.Commands;
 using DotnetToTypescript.IO;
 using DotnetToTypescript.Typescript;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 var builder = CoconaApp.CreateBuilder();
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .CreateLogger();
+
+// Add logging
+builder.Services.AddLogging(loggingBuilder =>
+    loggingBuilder.ClearProviders()
+        .AddSerilog(Log.Logger, dispose: true));
 
 builder.Services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
 builder.Services.AddSingleton<IScriptTypeExtractor, ScriptTypeExtractor>();
@@ -21,4 +33,15 @@ app.AddCommand("generate", (
     [Option('o', Description = "Output directory")] string? outputDirectory,
     GenerateCommand command) => command.ExecuteAsync(dllPaths, outputDirectory));
 
-await app.RunAsync();
+try
+{
+    await app.RunAsync();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

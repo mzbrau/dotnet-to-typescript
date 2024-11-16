@@ -431,3 +431,5 @@ yarn-debug.log*
 yarn-error.log*
 
 !/external
+
+*.received.*

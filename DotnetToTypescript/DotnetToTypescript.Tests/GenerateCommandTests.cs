@@ -4,6 +4,8 @@ using DotnetToTypescript.Commands;
 using DotnetToTypescript.AssemblyHandling;
 using DotnetToTypescript.IO;
 using DotnetToTypescript.Typescript;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace DotnetToTypescript.IntegrationTests;
 
@@ -17,12 +19,24 @@ public class GenerateCommandTests
     public void Setup()
     {
         var services = new ServiceCollection();
+        
+        // Configure Serilog
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console()
+            .CreateLogger();
+
+        // Add logging
+        services.AddLogging(loggingBuilder =>
+            loggingBuilder.ClearProviders()
+                .AddSerilog(Log.Logger, dispose: true));
+                
         services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
         services.AddSingleton<IScriptTypeExtractor, ScriptTypeExtractor>();
         services.AddSingleton<IDefinitionGenerator, TypeScriptDefinitionGenerator>();
         services.AddSingleton<IFileSystem, FileSystem>();
         services.AddSingleton<GenerateCommand>();
-        services.AddSingleton<IDefinitionGenerator, TypeScriptDefinitionGenerator>();
+        
         var serviceProvider = services.BuildServiceProvider();
         _command = serviceProvider.GetRequiredService<GenerateCommand>();
     }
@@ -52,6 +66,36 @@ public class GenerateCommandTests
         // Act
         await _command.ExecuteAsync(
             [sampleLibraryPath, sampleLibrary2Path], 
+            outputDirectory);
+
+        // Assert
+        var outputBaseName = Path.GetFileNameWithoutExtension(sampleLibraryPath);
+        var dtsPath = Path.Combine(outputDirectory!, outputBaseName + ".d.ts");
+        var tsPath = Path.Combine(outputDirectory!, outputBaseName + ".ts");
+
+        var dtsContent = await File.ReadAllTextAsync(dtsPath);
+        var tsContent = await File.ReadAllTextAsync(tsPath);
+
+        var settings = new VerifySettings();
+        settings.UseDirectory("Snapshots");
+        
+        await Verify(new
+        {
+            TypeScriptDefinitions = dtsContent,
+            TypeScriptInstances = tsContent
+        }, settings);
+    }
+    
+    [Test]
+    public async Task Generate_WithSingleLibrary_GeneratesExpectedOutput()
+    {
+        // Arrange
+        var sampleLibraryPath = GetAssemblyPath(typeof(SampleLibrary.User).Assembly);
+        var outputDirectory = Path.GetDirectoryName(_outputPath);
+
+        // Act
+        await _command.ExecuteAsync(
+            [sampleLibraryPath], 
             outputDirectory);
 
         // Assert

@@ -12,9 +12,17 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         var sb = new StringBuilder();
         var processedTypes = new HashSet<Type>();
 
+        sb.AppendLine("// Class Definitions");
         foreach (var type in scriptClasses)
         {
             ProcessClass(type, sb, processedTypes);
+        }
+        
+        var enumDefinitions = _typeMapper.GenerateEnumDefinitions();
+        if (!string.IsNullOrEmpty(enumDefinitions))
+        {
+            sb.AppendLine("// Enum Definitions");
+            sb.AppendLine(enumDefinitions);
         }
 
         return sb.ToString();

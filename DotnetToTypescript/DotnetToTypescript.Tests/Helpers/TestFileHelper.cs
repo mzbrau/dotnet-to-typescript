@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-
 namespace DotnetToTypescript.IntegrationTests.Helpers
 {
     public class TestFileHelper : IDisposable
