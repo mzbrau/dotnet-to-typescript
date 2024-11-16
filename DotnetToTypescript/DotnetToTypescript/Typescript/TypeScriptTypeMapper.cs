@@ -1,6 +1,4 @@
-namespace DotnetToTypescript;
-using System;
-using System.Linq;
+namespace DotnetToTypescript.Typescript;
 
 public class TypeScriptTypeMapper
 {

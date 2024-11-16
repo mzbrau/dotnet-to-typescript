@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace DotnetToTypescript;
+namespace DotnetToTypescript.Typescript;
 
 public class ScriptTypeExtractor : IScriptTypeExtractor
 {

@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text;
 
-namespace DotnetToTypescript;
+namespace DotnetToTypescript.Typescript;
 
 public class TypeScriptDefinitionGenerator : IDefinitionGenerator
 {

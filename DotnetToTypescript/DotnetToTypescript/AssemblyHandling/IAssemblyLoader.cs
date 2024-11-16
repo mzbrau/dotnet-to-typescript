@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace DotnetToTypescript;
+namespace DotnetToTypescript.AssemblyHandling;
 
 public interface IAssemblyLoader
 {

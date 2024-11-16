@@ -1,4 +1,4 @@
-namespace DotnetToTypescript;
+namespace DotnetToTypescript.Typescript;
 
 public interface IDefinitionGenerator
 {

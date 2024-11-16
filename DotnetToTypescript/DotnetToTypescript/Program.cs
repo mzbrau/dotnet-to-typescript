@@ -1,49 +1,21 @@
-﻿using DotnetToTypescript;
+﻿using Cocona;
+using DotnetToTypescript;
+using DotnetToTypescript.AssemblyHandling;
+using DotnetToTypescript.Commands;
+using DotnetToTypescript.Typescript;
 using Microsoft.Extensions.DependencyInjection;
 
-if (args.Length == 0)
-{
-    Console.WriteLine("Usage: DllToTypeScript <path-to-dll1> [path-to-dll2] ...");
-    return;
-}
+var builder = CoconaApp.CreateBuilder();
 
-var serviceProvider = ConfigureServices();
-var assemblyLoader = serviceProvider.GetRequiredService<IAssemblyLoader>();
-var scriptTypeExtractor = serviceProvider.GetRequiredService<IScriptTypeExtractor>();
-var definitionGenerator = serviceProvider.GetRequiredService<IDefinitionGenerator>();
+builder.Services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
+builder.Services.AddSingleton<IScriptTypeExtractor, ScriptTypeExtractor>();
+builder.Services.AddSingleton<IDefinitionGenerator, TypeScriptDefinitionGenerator>();
+builder.Services.AddSingleton<GenerateCommand>();
 
-try
-{
-    var scriptClasses = args.Select(a => assemblyLoader.LoadAssembly(a))
-        .SelectMany(assembly => scriptTypeExtractor.ExtractScriptClasses(assembly))
-        .ToList();
+var app = builder.Build();
 
-    // Generate one combined definition file
-    var outputPathDts = Path.ChangeExtension(args[0], ".d.ts");
-    var typeScriptDefinition = definitionGenerator.GenerateDefinitions(scriptClasses);
-    File.WriteAllText(outputPathDts, typeScriptDefinition);
-    Console.WriteLine($"TypeScript definition file created: {outputPathDts}");
+app.AddCommand("generate", (
+    [Argument(Description = "Paths to DLL files")] string[] dllPaths, 
+    GenerateCommand command) => command.ExecuteAsync(dllPaths));
 
-    // Generate one combined instance file
-    var typeScriptInstances = definitionGenerator.GenerateInstances(scriptTypeExtractor.ScriptCreateNames, outputPathDts);
-    if (!string.IsNullOrEmpty(typeScriptInstances))
-    {
-        var outputPathTs = Path.ChangeExtension(args[0], ".ts");
-        File.WriteAllText(outputPathTs, typeScriptInstances);
-        Console.WriteLine($"TypeScript instance file created: {outputPathTs}");
-    }
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Error: {ex.Message}");
-}
-
-
-ServiceProvider ConfigureServices()
-{
-    var services = new ServiceCollection();
-    services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
-    services.AddSingleton<IScriptTypeExtractor, ScriptTypeExtractor>();
-    services.AddSingleton<IDefinitionGenerator, TypeScriptDefinitionGenerator>();
-    return services.BuildServiceProvider();
-}
+await app.RunAsync();
