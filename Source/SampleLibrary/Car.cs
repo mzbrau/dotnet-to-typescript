@@ -55,4 +55,9 @@ public class Car : IVehicle
         _maintenanceHistory.Add(record);
         ServiceCosts[record.Description] = record.Cost;
     }
+
+    public void LogError(Exception exception, DateTime timestamp)
+    {
+        Console.WriteLine($"Error: {exception.Message} at {timestamp}");
+    }
 }

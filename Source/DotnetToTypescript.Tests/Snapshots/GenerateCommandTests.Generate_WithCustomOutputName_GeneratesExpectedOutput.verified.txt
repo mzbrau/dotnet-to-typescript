@@ -15,6 +15,7 @@ declare class Car {
     addUser(user: User): boolean;
     getMaintenanceHistory(): MaintenanceRecord[];
     addMaintenanceRecord(record: MaintenanceRecord): void;
+    logError(exception: Exception, timestamp: Date): void;
 }
 
 declare class MaintenanceRecord {
@@ -56,6 +57,14 @@ declare enum UserStatus {
     Inactive = 1,
     Suspended = 2,
     Pending = 3,
+}
+
+
+// System Type Definitions
+declare class Exception {
+    message: string;
+    stackTrace?: string;
+    innerException?: Exception;
 }
 
 

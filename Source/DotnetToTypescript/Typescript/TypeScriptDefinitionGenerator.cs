@@ -6,6 +6,7 @@ namespace DotnetToTypescript.Typescript;
 public class TypeScriptDefinitionGenerator : IDefinitionGenerator
 {
     private readonly TypeScriptTypeMapper _typeMapper = new();
+    private readonly HashSet<Type> _systemTypes = new();
     private Type? _typeAttribute;
 
     public void Initialize(Type typeAttribute)
@@ -29,6 +30,13 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         {
             sb.AppendLine("// Enum Definitions");
             sb.AppendLine(enumDefinitions);
+        }
+
+        var systemTypeDefinitions = GenerateSystemTypeDefinitions();
+        if (!string.IsNullOrEmpty(systemTypeDefinitions))
+        {
+            sb.AppendLine("// System Type Definitions");
+            sb.AppendLine(systemTypeDefinitions);
         }
 
         return sb.ToString();
@@ -78,18 +86,38 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         if (!processedTypes.Add(type)) 
             return;
 
+        // Track system types for the class itself
+        if (type.Namespace?.StartsWith("System") == true)
+        {
+            _systemTypes.Add(type);
+            return;
+        }
+
         sb.AppendLine($"declare class {type.Name} {{");
 
+        // Process properties
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
         foreach (var prop in properties)
         {
+            // Track system types from property types
+            TrackSystemType(prop.PropertyType);
             sb.AppendLine($"    {FormatName(prop.Name, preserveCase)}: {_typeMapper.MapToTypeScriptType(prop.PropertyType)};");
         }
 
+        // Process methods
         var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
             .Where(m => !m.IsSpecialName);
         foreach (var method in methods)
         {
+            // Track system types from return type
+            TrackSystemType(method.ReturnType);
+
+            // Track system types from parameters
+            foreach (var parameter in method.GetParameters())
+            {
+                TrackSystemType(parameter.ParameterType);
+            }
+
             var parameters = method.GetParameters()
                 .Select(p => $"{FormatName(p.Name, preserveCase)}: {_typeMapper.MapToTypeScriptType(p.ParameterType)}")
                 .ToArray();
@@ -110,6 +138,42 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         }
     }
 
+    private void TrackSystemType(Type type)
+    {
+        // Handle array types
+        if (type.IsArray)
+        {
+            TrackSystemType(type.GetElementType()!);
+            return;
+        }
+
+        // Handle generic types
+        if (type.IsGenericType)
+        {
+            foreach (var genericArg in type.GetGenericArguments())
+            {
+                TrackSystemType(genericArg);
+            }
+
+            // Also track the generic type definition if it's from System namespace
+            var genericTypeDef = type.GetGenericTypeDefinition();
+            if (genericTypeDef.Namespace?.StartsWith("System") == true)
+            {
+                _systemTypes.Add(genericTypeDef);
+            }
+        }
+
+        // Track the type itself if it's from System namespace
+        if (type.Namespace?.StartsWith("System") == true &&
+            type != typeof(void) &&
+            !type.IsPrimitive &&
+            type != typeof(string) &&
+            type != typeof(DateTime))
+        {
+            _systemTypes.Add(type);
+        }
+    }
+
     private string GetDefaultValueForType(Type type)
     {
         if (type == typeof(string)) return "\"\"";
@@ -125,5 +189,33 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
             return name;
         
         return char.ToLower(name[0]) + name.Substring(1);
+    }
+
+    private string GenerateSystemTypeDefinitions()
+    {
+        var sb = new StringBuilder();
+        
+        foreach (var type in _systemTypes)
+        {
+            if (type == typeof(Exception))
+            {
+                sb.AppendLine("declare class Exception {");
+                sb.AppendLine("    message: string;");
+                sb.AppendLine("    stackTrace?: string;");
+                sb.AppendLine("    innerException?: Exception;");
+                sb.AppendLine("}");
+                sb.AppendLine();
+            }
+            else if (type == typeof(ArgumentException))
+            {
+                sb.AppendLine("declare class ArgumentException extends Exception {");
+                sb.AppendLine("    paramName?: string;");
+                sb.AppendLine("}");
+                sb.AppendLine();
+            }
+            // Add more system types as needed
+        }
+
+        return sb.ToString();
     }
 }

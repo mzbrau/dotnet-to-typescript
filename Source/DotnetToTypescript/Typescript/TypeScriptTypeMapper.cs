@@ -5,6 +5,7 @@ public class TypeScriptTypeMapper
 {
     private readonly Type? _javascriptTypeAttribute;
     private readonly HashSet<Type> _discoveredEnums = new();
+    private readonly HashSet<Type> _discoveredSystemTypes = new();
 
     public TypeScriptTypeMapper()
     {
@@ -16,6 +17,16 @@ public class TypeScriptTypeMapper
 
     public string MapToTypeScriptType(Type type)
     {
+        // Track system types
+        if (type.Namespace?.StartsWith("System") == true && 
+            type != typeof(void) && 
+            !type.IsPrimitive && 
+            type != typeof(string) && 
+            type != typeof(DateTime))
+        {
+            _discoveredSystemTypes.Add(type);
+        }
+
         // Handle nullable types first
         if (Nullable.GetUnderlyingType(type) is Type underlyingType)
         {
@@ -166,4 +177,6 @@ public class TypeScriptTypeMapper
         
         return builder.ToString();
     }
+
+    public HashSet<Type> GetDiscoveredSystemTypes() => _discoveredSystemTypes;
 }

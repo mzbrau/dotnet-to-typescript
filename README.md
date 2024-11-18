@@ -21,6 +21,8 @@ dotnet tool install dotnet-to-typescript --global
 - Handles async methods (Task/Task<T>)
 - Supports collections (List<T>, Dictionary<K,V>)
 - Preserves nullable types
+- Automatically tracks and generates definitions for referenced System types
+- Handles inheritance relationships between types
 
 ## Usage
 
@@ -130,6 +132,10 @@ This tool is particularly useful when:
 - Nullable types
 - Task<T> → Promise<T>
 - Interfaces (mapped to concrete implementations)
+- System Types
+  - Exception → TypeScript class with message, stackTrace, and innerException
+  - ArgumentException → TypeScript class extending Exception with paramName
+  - Other System namespace types automatically tracked and included
 
 ## Performance
 
@@ -147,9 +153,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Roadmap
-
-
-- Doesn't work with nested classes that have attributes
-- Should add shells for built in types (e.g. Exception, )
 
