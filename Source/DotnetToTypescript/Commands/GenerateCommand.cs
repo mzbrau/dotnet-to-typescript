@@ -27,7 +27,7 @@ public class GenerateCommand
         _logger = logger;
     }
 
-    public async Task ExecuteAsync(string[] dllPaths, string? outputDirectory = null, bool preserveCase = false)
+    public async Task ExecuteAsync(string[] dllPaths, string? outputDirectory = null, bool preserveCase = false, string? outputName = null)
     {
         if (dllPaths.Length == 0)
         {
@@ -69,8 +69,10 @@ public class GenerateCommand
                 .First();
             
             var basePath = outputDirectory != null 
-                ? _fileSystem.Combine(outputDirectory, _fileSystem.GetFileNameWithoutExtension(dllPaths[Array.IndexOf(dllPaths, primaryAssembly.Location)]))
-                : dllPaths[0];
+                ? _fileSystem.Combine(outputDirectory, outputName ?? _fileSystem.GetFileNameWithoutExtension(dllPaths[Array.IndexOf(dllPaths, primaryAssembly.Location)]))
+                : outputName != null 
+                    ? _fileSystem.Combine(_fileSystem.GetDirectoryName(dllPaths[0]), outputName)
+                    : dllPaths[0];
 
             if (outputDirectory != null)
             {

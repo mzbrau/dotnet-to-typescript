@@ -16,4 +16,7 @@ public class FileSystem : IFileSystem
 
     public string Combine(params string[] paths) => 
         Path.Combine(paths);
+
+    public string GetDirectoryName(string path) => 
+        Path.GetDirectoryName(path) ?? string.Empty;
 }

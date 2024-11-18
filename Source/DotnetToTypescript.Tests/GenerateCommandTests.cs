@@ -65,7 +65,8 @@ public class GenerateCommandTests
         // Act
         await _command?.ExecuteAsync(
             [sampleLibrary2Path, sampleLibraryPath], 
-            outputDirectory)!;
+            outputDirectory,
+            outputName: null)!;
 
         // Assert
         var outputBaseName = Path.GetFileNameWithoutExtension(sampleLibrary2Path);
@@ -96,7 +97,8 @@ public class GenerateCommandTests
         // Act
         await _command?.ExecuteAsync(
             [sampleLibraryPath, sampleLibrary2Path], 
-            outputDirectory)!;
+            outputDirectory,
+            outputName: null)!;
 
         // Assert
         var outputBaseName = Path.GetFileNameWithoutExtension(sampleLibrary2Path);
@@ -126,12 +128,106 @@ public class GenerateCommandTests
         // Act
         await _command?.ExecuteAsync(
             [sampleLibraryPath], 
-            outputDirectory)!;
+            outputDirectory,
+            outputName: null)!;
 
         // Assert
         var outputBaseName = Path.GetFileNameWithoutExtension(sampleLibraryPath);
         var dtsPath = Path.Combine(outputDirectory!, outputBaseName + ".d.ts");
         var tsPath = Path.Combine(outputDirectory!, outputBaseName + ".ts");
+
+        var dtsContent = await File.ReadAllTextAsync(dtsPath);
+        var tsContent = await File.ReadAllTextAsync(tsPath);
+
+        var settings = new VerifySettings();
+        settings.UseDirectory("Snapshots");
+        
+        await Verify(new
+        {
+            TypeScriptDefinitions = dtsContent,
+            TypeScriptInstances = tsContent
+        }, settings);
+    }
+
+    [Test]
+    public async Task Generate_WithCustomOutputName_GeneratesExpectedOutput()
+    {
+        // Arrange
+        var sampleLibraryPath = GetAssemblyPath(typeof(SampleLibrary.User).Assembly);
+        var outputDirectory = Path.GetDirectoryName(_outputPath);
+        const string customOutputName = "custom-types";
+
+        // Act
+        await _command?.ExecuteAsync(
+            [sampleLibraryPath], 
+            outputDirectory,
+            outputName: customOutputName)!;
+
+        // Assert
+        var dtsPath = Path.Combine(outputDirectory!, customOutputName + ".d.ts");
+        var tsPath = Path.Combine(outputDirectory!, customOutputName + ".ts");
+
+        var dtsContent = await File.ReadAllTextAsync(dtsPath);
+        var tsContent = await File.ReadAllTextAsync(tsPath);
+
+        var settings = new VerifySettings();
+        settings.UseDirectory("Snapshots");
+        
+        await Verify(new
+        {
+            TypeScriptDefinitions = dtsContent,
+            TypeScriptInstances = tsContent
+        }, settings);
+    }
+
+    [Test]
+    public async Task Generate_WithCustomOutputName_AndMultipleLibraries_GeneratesExpectedOutput()
+    {
+        // Arrange
+        var sampleLibraryPath = GetAssemblyPath(typeof(SampleLibrary.User).Assembly);
+        var sampleLibrary2Path = GetAssemblyPath(typeof(SampleLibrary2.Truck).Assembly);
+        var outputDirectory = Path.GetDirectoryName(_outputPath);
+        const string customOutputName = "combined-types";
+
+        // Act
+        await _command?.ExecuteAsync(
+            [sampleLibraryPath, sampleLibrary2Path], 
+            outputDirectory,
+            outputName: customOutputName)!;
+
+        // Assert
+        var dtsPath = Path.Combine(outputDirectory!, customOutputName + ".d.ts");
+        var tsPath = Path.Combine(outputDirectory!, customOutputName + ".ts");
+
+        var dtsContent = await File.ReadAllTextAsync(dtsPath);
+        var tsContent = await File.ReadAllTextAsync(tsPath);
+
+        var settings = new VerifySettings();
+        settings.UseDirectory("Snapshots");
+        
+        await Verify(new
+        {
+            TypeScriptDefinitions = dtsContent,
+            TypeScriptInstances = tsContent
+        }, settings);
+    }
+
+    [Test]
+    public async Task Generate_WithCustomOutputName_NoOutputDirectory_GeneratesExpectedOutput()
+    {
+        // Arrange
+        var sampleLibraryPath = GetAssemblyPath(typeof(SampleLibrary.User).Assembly);
+        const string customOutputName = "types-in-source-dir";
+
+        // Act
+        await _command?.ExecuteAsync(
+            [sampleLibraryPath], 
+            outputName: customOutputName)!;
+
+        // Assert
+        var sourceDirectory = Path.GetDirectoryName(sampleLibraryPath)!;
+        var dtsPath = Path.Combine(sourceDirectory, customOutputName + ".d.ts");
+        var tsPath = Path.Combine(sourceDirectory, customOutputName + ".ts");
 
         var dtsContent = await File.ReadAllTextAsync(dtsPath);
         var tsContent = await File.ReadAllTextAsync(tsPath);

@@ -1,0 +1,117 @@
+﻿{
+  TypeScriptDefinitions:
+// Class Definitions
+declare class Car {
+    make: string;
+    model: string;
+    year: number;
+    fuelLevel: number;
+    isRunning: boolean;
+    authorizedDrivers: User[];
+    serviceCosts: { [key: string]: number };
+    type: CarType;
+    startEngineAsync(): Promise<boolean>;
+    refuelAsync(amount: number): Promise<number>;
+    addUser(user: User): boolean;
+    getMaintenanceHistory(): MaintenanceRecord[];
+    addMaintenanceRecord(record: MaintenanceRecord): void;
+}
+declare class MaintenanceRecord {
+    serviceDate: Date;
+    description: string;
+    cost: number;
+    mechanic: string;
+    partsReplaced: string[];
+    isWarrantyWork: boolean;
+    maxRetries: number;
+    apiKey: string;
+    isEnabled: boolean;
+}
+declare class User {
+    name: string;
+    address: string;
+    dateOfBirth: Date;
+    phoneNumbers: string[];
+    permissions: { [key: string]: boolean };
+    status: UserStatus;
+    validateAsync(): Promise<boolean>;
+    addPhoneNumber(number: string): void;
+    setPermission(permission: string, value: boolean): void;
+    hasPermission(permission: string): boolean;
+}
+declare class CargoItem {
+    itemId: string;
+    description: string;
+    weight: number;
+    dimensions: { [key: string]: number };
+    requiresRefrigeration: boolean;
+}
+declare class CargoManifest {
+    manifestId: string;
+    weight: number;
+    items: CargoItem[];
+    customsDeclarations: { [key: string]: string };
+    loadingTime: Date;
+    isHazardous: boolean | null;
+    getHazardousMessage: () => string;
+}
+declare class LoadingResult {
+    success: boolean;
+    message: string;
+    timestamp: Date;
+}
+declare class Truck {
+    make: string;
+    model: string;
+    year: number;
+    cargoCapacity: number;
+    drivers: User[];
+    currentCargo: CargoManifest;
+    status: TruckStatus;
+    startEngineAsync(): Promise<boolean>;
+    loadCargoAsync(cargo: CargoManifest): Promise<LoadingResult>;
+    getMaintenanceHistory(): MaintenanceRecord[];
+    getDrivers(): User[];
+    setDrivers(drivers: User[]): void;
+}
+// Enum Definitions
+declare enum CarType {
+    Sedan = 0,
+    Suv = 1,
+    Sports = 2,
+    Luxury = 3,
+    Electric = 4,
+}
+
+declare enum UserStatus {
+    Active = 0,
+    Inactive = 1,
+    Suspended = 2,
+    Pending = 3,
+}
+
+declare enum TruckStatus {
+    Idle = 0,
+    Loading = 1,
+    Running = 2,
+    Maintenance = 3,
+    OutOfService = 4,
+}
+
+
+,
+  TypeScriptInstances:
+/// <reference path="combined-types.d.ts" />
+
+let MaintenanceRecord2 = new MaintenanceRecord();
+let mike = new User();
+let truck = new Truck();
+let maxRetries = 0;
+let apiKey = "";
+let isEnabled = false;
+
+// Insert your script below
+// -------------------------
+
+
+}

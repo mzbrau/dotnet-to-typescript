@@ -1,0 +1,73 @@
+﻿{
+  TypeScriptDefinitions:
+// Class Definitions
+declare class Car {
+    make: string;
+    model: string;
+    year: number;
+    fuelLevel: number;
+    isRunning: boolean;
+    authorizedDrivers: User[];
+    serviceCosts: { [key: string]: number };
+    type: CarType;
+    startEngineAsync(): Promise<boolean>;
+    refuelAsync(amount: number): Promise<number>;
+    addUser(user: User): boolean;
+    getMaintenanceHistory(): MaintenanceRecord[];
+    addMaintenanceRecord(record: MaintenanceRecord): void;
+}
+declare class MaintenanceRecord {
+    serviceDate: Date;
+    description: string;
+    cost: number;
+    mechanic: string;
+    partsReplaced: string[];
+    isWarrantyWork: boolean;
+    maxRetries: number;
+    apiKey: string;
+    isEnabled: boolean;
+}
+declare class User {
+    name: string;
+    address: string;
+    dateOfBirth: Date;
+    phoneNumbers: string[];
+    permissions: { [key: string]: boolean };
+    status: UserStatus;
+    validateAsync(): Promise<boolean>;
+    addPhoneNumber(number: string): void;
+    setPermission(permission: string, value: boolean): void;
+    hasPermission(permission: string): boolean;
+}
+// Enum Definitions
+declare enum CarType {
+    Sedan = 0,
+    Suv = 1,
+    Sports = 2,
+    Luxury = 3,
+    Electric = 4,
+}
+
+declare enum UserStatus {
+    Active = 0,
+    Inactive = 1,
+    Suspended = 2,
+    Pending = 3,
+}
+
+
+,
+  TypeScriptInstances:
+/// <reference path="custom-types.d.ts" />
+
+let MaintenanceRecord2 = new MaintenanceRecord();
+let mike = new User();
+let maxRetries = 0;
+let apiKey = "";
+let isEnabled = false;
+
+// Insert your script below
+// -------------------------
+
+
+}

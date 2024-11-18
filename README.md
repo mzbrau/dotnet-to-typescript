@@ -83,7 +83,10 @@ dotnet-to-typescript generate path/to/your/assembly1.dll path/to/your/assembly2.
 The attributes need to be defined in one of the assemblies.
 
 Optional parameters:
+Optional parameters:
 - `-o, --output-directory`: Specify output directory for generated files
+- `-p, --preserve-case`: Preserve original casing in property and method names
+- `-n, --output-name`: Specify the output filename (without extension)
 
 ### 5. Review the sample output
 
@@ -147,7 +150,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Roadmap
 
 
-- Add optional name parameter
 - Doesn't work with nested classes that have attributes
 - Should add shells for built in types (e.g. Exception, )
 

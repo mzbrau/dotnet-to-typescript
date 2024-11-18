@@ -32,7 +32,8 @@ app.AddCommand("generate", (
     [Argument(Description = "Paths to DLL files")] string[] dllPaths,
     [Option('o', Description = "Output directory")] string? outputDirectory,
     [Option('p', Description = "Preserve original casing")] bool preserveCase,
-    GenerateCommand command) => command.ExecuteAsync(dllPaths, outputDirectory, preserveCase));
+    [Option('n', Description = "Output filename (without extension)")] string? outputName,
+    GenerateCommand command) => command.ExecuteAsync(dllPaths, outputDirectory, preserveCase, outputName));
 
 try
 {
