@@ -3,32 +3,12 @@ using System.Text;
 
 public class TypeScriptTypeMapper
 {
-    private readonly Type? _javascriptTypeAttribute;
     private readonly HashSet<Type> _discoveredEnums = new();
-    private readonly HashSet<Type> _discoveredSystemTypes = new();
-
-    public TypeScriptTypeMapper()
-    {
-        // Find the JavascriptTypeAttribute once during initialization
-        _javascriptTypeAttribute = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(a => a.GetTypes())
-            .FirstOrDefault(t => t.Name == "JavascriptTypeAttribute");
-    }
-
+    
     public string MapToTypeScriptType(Type type)
     {
-        // Track system types
-        if (type.Namespace?.StartsWith("System") == true && 
-            type != typeof(void) && 
-            !type.IsPrimitive && 
-            type != typeof(string) && 
-            type != typeof(DateTime))
-        {
-            _discoveredSystemTypes.Add(type);
-        }
-
         // Handle nullable types first
-        if (Nullable.GetUnderlyingType(type) is Type underlyingType)
+        if (Nullable.GetUnderlyingType(type) is { } underlyingType)
         {
             return $"{MapToTypeScriptType(underlyingType)} | null";
         }
@@ -55,7 +35,7 @@ public class TypeScriptTypeMapper
         }
         
         // Add struct support
-        if (type.IsValueType && !type.IsPrimitive && !type.IsEnum)
+        if (type is { IsValueType: true, IsPrimitive: false, IsEnum: false })
             return type.Name; // Treat structs like classes, using their name
         
         // Handle arrays and lists
@@ -150,10 +130,10 @@ public class TypeScriptTypeMapper
 
     private Type? FindFirstConcreteImplementation(Type interfaceType)
     {
-        return AppDomain.CurrentDomain.GetAssemblies()
+        return AppDomain.CurrentDomain
+            .GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
-            .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t))
-            .FirstOrDefault();
+            .FirstOrDefault(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t));
     }
 
     // Add new method to generate enum definitions
@@ -177,6 +157,4 @@ public class TypeScriptTypeMapper
         
         return builder.ToString();
     }
-
-    public HashSet<Type> GetDiscoveredSystemTypes() => _discoveredSystemTypes;
 }

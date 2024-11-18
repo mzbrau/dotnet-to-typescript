@@ -9,7 +9,7 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
     private readonly HashSet<Type> _systemTypes = new();
     private Type? _typeAttribute;
 
-    public void Initialize(Type typeAttribute)
+    public void Initialize(Type? typeAttribute)
     {
         _typeAttribute = typeAttribute;
     }
@@ -119,7 +119,7 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
             }
 
             var parameters = method.GetParameters()
-                .Select(p => $"{FormatName(p.Name, preserveCase)}: {_typeMapper.MapToTypeScriptType(p.ParameterType)}")
+                .Select(p => $"{FormatName(p.Name!, preserveCase)}: {_typeMapper.MapToTypeScriptType(p.ParameterType)}")
                 .ToArray();
 
             sb.AppendLine($"    {FormatName(method.Name, preserveCase)}({string.Join(", ", parameters)}): {_typeMapper.MapToTypeScriptType(method.ReturnType)};");
@@ -130,7 +130,7 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
 
         // Process nested classes
         var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
-            .Where(t => t.IsClass && _typeAttribute != null && t.GetCustomAttributes(_typeAttribute, false).Any());
+            .Where(t => t.IsClass && _typeAttribute != null && t.GetCustomAttributes(_typeAttribute, false).Length != 0);
             
         foreach (var nestedType in nestedTypes)
         {

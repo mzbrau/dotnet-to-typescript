@@ -31,7 +31,7 @@ public class GenerateCommand
     {
         if (dllPaths.Length == 0)
         {
-            _logger.LogWarning("No dll files specified. Exiting.");
+            _logger.LogWarning("No dll files specified. Exiting");
             return;
         }
 
