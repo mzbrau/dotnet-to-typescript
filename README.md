@@ -146,8 +146,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Roadmap
 
-- Add support for individual properties (e.g. int being available in the javascript file)
-- It only extracts the attributes correctly when the first dll contains the attributes, otherwise the first file is skipped.
+
 - Does not work for `Func<T>`
 - Add option to make the first letter lowercase
 - Add optional name parameter

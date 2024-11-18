@@ -4,5 +4,7 @@ public interface IDefinitionGenerator
 {
     string GenerateDefinitions(IEnumerable<Type> scriptClasses);
     
-    string GenerateInstances(Dictionary<Type, string> scriptCreateNames, string definitionPath);
+    string GenerateInstances(Dictionary<Type, string> scriptCreateNames, 
+        Dictionary<(Type Type, string PropertyName), string> scriptPropertyNames,
+        string definitionPath);
 }

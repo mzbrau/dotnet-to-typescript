@@ -40,22 +40,36 @@ public class GenerateCommand
         try
         {
             _logger.LogInformation("Loading assemblies and extracting script classes");
-            var scriptClasses = dllPaths.Select(path =>
+            
+            // First load all assemblies
+            var assemblies = dllPaths.Select(path =>
             {
                 _logger.LogDebug("Loading assembly: {Path}", path);
                 return _assemblyLoader.LoadAssembly(path);
-            })
-            .SelectMany(assembly =>
-            {
-                _logger.LogDebug("Extracting script classes from assembly: {Name}", assembly.GetName().Name);
-                return _scriptTypeExtractor.ExtractScriptClasses(assembly);
-            })
-            .ToList();
+            }).ToList();
+
+            // Initialize attributes from all assemblies
+            _scriptTypeExtractor.InitializeAttributes(assemblies);
+
+            // Then process each assembly
+            var scriptClasses = assemblies
+                .SelectMany(assembly =>
+                {
+                    _logger.LogDebug("Extracting script classes from assembly: {Name}", assembly.GetName().Name);
+                    return _scriptTypeExtractor.ExtractScriptClasses(assembly);
+                })
+                .OrderBy(type => type.FullName)
+                .ToList();
 
             _logger.LogInformation("Found {Count} script classes to process", scriptClasses.Count);
 
+            // Always use the assembly with the most types as the base for naming
+            var primaryAssembly = assemblies
+                .OrderByDescending(a => scriptClasses.Count(c => c.Assembly == a))
+                .First();
+            
             var basePath = outputDirectory != null 
-                ? _fileSystem.Combine(outputDirectory, _fileSystem.GetFileNameWithoutExtension(dllPaths[0]))
+                ? _fileSystem.Combine(outputDirectory, _fileSystem.GetFileNameWithoutExtension(dllPaths[Array.IndexOf(dllPaths, primaryAssembly.Location)]))
                 : dllPaths[0];
 
             if (outputDirectory != null)
@@ -94,6 +108,7 @@ public class GenerateCommand
         
         var typeScriptInstances = _definitionGenerator.GenerateInstances(
             _scriptTypeExtractor.ScriptCreateNames,
+            _scriptTypeExtractor.ScriptPropertyNames,
             outputPathDts);
 
         if (!string.IsNullOrEmpty(typeScriptInstances))

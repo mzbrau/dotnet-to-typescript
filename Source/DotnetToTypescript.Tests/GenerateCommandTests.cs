@@ -12,8 +12,8 @@ namespace DotnetToTypescript.IntegrationTests;
 [TestFixture]
 public class GenerateCommandTests
 {
-    private GenerateCommand _command = null!;
-    private readonly string _outputPath = Path.GetTempPath();
+    private GenerateCommand? _command;
+    private readonly string _outputPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
     [SetUp]
     public void Setup()
@@ -46,13 +46,43 @@ public class GenerateCommandTests
     {
         try
         {
-            if (Directory.Exists(_outputPath))
-                Directory.Delete(_outputPath, true);
+            _command = null;
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
         }
+    }
+    
+    [Test]
+    public async Task Generate_WithSampleLibraries_GeneratesExpectedOutput_WithArgumentsReversed()
+    {
+        // Arrange
+        var sampleLibraryPath = GetAssemblyPath(typeof(SampleLibrary.User).Assembly);
+        var sampleLibrary2Path = GetAssemblyPath(typeof(SampleLibrary2.Truck).Assembly);
+        var outputDirectory = Path.GetDirectoryName(_outputPath);
+
+        // Act
+        await _command?.ExecuteAsync(
+            [sampleLibrary2Path, sampleLibraryPath], 
+            outputDirectory)!;
+
+        // Assert
+        var outputBaseName = Path.GetFileNameWithoutExtension(sampleLibrary2Path);
+        var dtsPath = Path.Combine(outputDirectory!, outputBaseName + ".d.ts");
+        var tsPath = Path.Combine(outputDirectory!, outputBaseName + ".ts");
+
+        var dtsContent = await File.ReadAllTextAsync(dtsPath);
+        var tsContent = await File.ReadAllTextAsync(tsPath);
+
+        var settings = new VerifySettings();
+        settings.UseDirectory("Snapshots");
+        
+        await Verify(new
+        {
+            TypeScriptDefinitions = dtsContent,
+            TypeScriptInstances = tsContent
+        }, settings);
     }
 
     [Test]
@@ -64,12 +94,12 @@ public class GenerateCommandTests
         var outputDirectory = Path.GetDirectoryName(_outputPath);
 
         // Act
-        await _command.ExecuteAsync(
+        await _command?.ExecuteAsync(
             [sampleLibraryPath, sampleLibrary2Path], 
-            outputDirectory);
+            outputDirectory)!;
 
         // Assert
-        var outputBaseName = Path.GetFileNameWithoutExtension(sampleLibraryPath);
+        var outputBaseName = Path.GetFileNameWithoutExtension(sampleLibrary2Path);
         var dtsPath = Path.Combine(outputDirectory!, outputBaseName + ".d.ts");
         var tsPath = Path.Combine(outputDirectory!, outputBaseName + ".ts");
 
@@ -94,9 +124,9 @@ public class GenerateCommandTests
         var outputDirectory = Path.GetDirectoryName(_outputPath);
 
         // Act
-        await _command.ExecuteAsync(
+        await _command?.ExecuteAsync(
             [sampleLibraryPath], 
-            outputDirectory);
+            outputDirectory)!;
 
         // Assert
         var outputBaseName = Path.GetFileNameWithoutExtension(sampleLibraryPath);

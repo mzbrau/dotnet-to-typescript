@@ -30,6 +30,12 @@ public class TypeScriptTypeMapper
         if (type == typeof(string)) return "string";
         if (type == typeof(DateTime)) return "Date";
         
+        // Handle Func types
+        if (IsFuncType(type))
+        {
+            return MapFuncToTypeScript(type);
+        }
+        
         // Updated enum support
         if (type.IsEnum)
         {
@@ -64,7 +70,6 @@ public class TypeScriptTypeMapper
                 genericTypeDef == typeof(IEnumerable<>))
             {
                 var elementType = type.GetGenericArguments()[0];
-                // If element type is an interface, try to find concrete implementation
                 if (elementType.IsInterface)
                 {
                     var concreteType = FindFirstConcreteImplementation(elementType);
@@ -80,14 +85,12 @@ public class TypeScriptTypeMapper
                 var keyType = type.GetGenericArguments()[0];
                 var valueType = type.GetGenericArguments()[1];
                 
-                // If value type is an interface, try to find concrete implementation
                 if (valueType.IsInterface)
                 {
                     var concreteType = FindFirstConcreteImplementation(valueType);
                     valueType = concreteType ?? valueType;
                 }
                 
-                // TypeScript only supports string or number as index signature types
                 var mappedKeyType = keyType == typeof(string) ? "string" : "number";
                 var mappedValueType = MapToTypeScriptType(valueType);
                 
@@ -107,6 +110,31 @@ public class TypeScriptTypeMapper
         }
 
         return type.Name;
+    }
+
+    private bool IsFuncType(Type type)
+    {
+        if (!type.IsGenericType)
+            return type == typeof(Func<>);
+        
+        var genericTypeDef = type.GetGenericTypeDefinition();
+        return genericTypeDef.FullName?.StartsWith("System.Func`") == true;
+    }
+
+    private string MapFuncToTypeScript(Type funcType)
+    {
+        if (!funcType.IsGenericType)
+            return "() => void";
+
+        var genericArgs = funcType.GetGenericArguments();
+        var returnType = genericArgs[^1]; // Last argument is return type
+        var parameterTypes = genericArgs.Take(genericArgs.Length - 1).ToArray();
+
+        var parameters = parameterTypes.Length > 0
+            ? string.Join(", ", parameterTypes.Select((t, i) => $"arg{i}: {MapToTypeScriptType(t)}"))
+            : "";
+
+        return $"({parameters}) => {MapToTypeScriptType(returnType)}";
     }
 
     private Type? FindFirstConcreteImplementation(Type interfaceType)

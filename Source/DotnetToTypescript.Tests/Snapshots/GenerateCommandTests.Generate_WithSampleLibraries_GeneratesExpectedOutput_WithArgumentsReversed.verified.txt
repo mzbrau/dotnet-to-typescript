@@ -103,9 +103,9 @@ declare enum TruckStatus {
   TypeScriptInstances:
 /// <reference path="SampleLibrary2.d.ts" />
 
+let truck = new Truck();
 let MaintenanceRecord2 = new MaintenanceRecord();
 let mike = new User();
-let truck = new Truck();
 let maxRetries = 0;
 let apiKey = "";
 let isEnabled = false;

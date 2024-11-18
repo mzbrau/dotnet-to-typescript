@@ -28,10 +28,10 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         return sb.ToString();
     }
 
-    public string GenerateInstances(Dictionary<Type, string> scriptCreateNames, string definitionPath)
+    public string GenerateInstances(Dictionary<Type, string> scriptCreateNames, 
+        Dictionary<(Type Type, string PropertyName), string> scriptPropertyNames,
+        string definitionPath)
     {
-        if (!scriptCreateNames.Any()) return string.Empty;
-        
         var sb = new StringBuilder();
         
         // Add reference to definition file
@@ -39,11 +39,24 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         sb.AppendLine($"/// <reference path=\"{Path.GetFileName(definitionFile)}\" />");
         sb.AppendLine();
 
+        // Generate class instances
         foreach (var entry in scriptCreateNames)
         {
             var typeName = entry.Key.Name;
             var instanceName = entry.Value;
             sb.AppendLine($"let {instanceName} = new {typeName}();");
+        }
+
+        // Generate property instances
+        foreach (var entry in scriptPropertyNames)
+        {
+            var propertyType = entry.Key.Type;
+            var propertyInfo = propertyType.GetProperty(entry.Key.PropertyName);
+            if (propertyInfo != null)
+            {
+                var defaultValue = GetDefaultValueForType(propertyInfo.PropertyType);
+                sb.AppendLine($"let {entry.Value} = {defaultValue};");
+            }
         }
         
         sb.AppendLine();
@@ -79,5 +92,14 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         }
 
         sb.AppendLine("}");
+    }
+
+    private string GetDefaultValueForType(Type type)
+    {
+        if (type == typeof(string)) return "\"\"";
+        if (type == typeof(bool)) return "false";
+        if (type == typeof(DateTime)) return "new Date()";
+        if (type.IsValueType) return "0";
+        return "null";
     }
 }

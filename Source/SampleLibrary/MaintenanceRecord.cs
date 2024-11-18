@@ -12,4 +12,13 @@ public class MaintenanceRecord : IMaintenanceRecord
     public string Mechanic { get; set; }
     public List<string> PartsReplaced { get; set; } = new();
     public bool IsWarrantyWork { get; set; }
+
+    [JavascriptObject("maxRetries")]
+    public int MaxRetries { get; set; }
+
+    [JavascriptObject("apiKey")]
+    public string ApiKey { get; set; }
+
+    [JavascriptObject("isEnabled")]
+    public bool IsEnabled { get; set; }
 } 

@@ -11,4 +11,5 @@ public class CargoManifest
     public IDictionary<string, string> CustomsDeclarations { get; set; } = new Dictionary<string, string>();
     public DateTime LoadingTime { get; set; }
     public bool? IsHazardous { get; set; }
+    public Func<string> GetHazardousMessage { get; set; }
 } 

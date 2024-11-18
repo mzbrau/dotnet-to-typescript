@@ -1,6 +1,6 @@
 namespace SampleLibrary.Attributes;
 
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
 public class JavascriptObjectAttribute : Attribute
 {
     public string Name { get; }
