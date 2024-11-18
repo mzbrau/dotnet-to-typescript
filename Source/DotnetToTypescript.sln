@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35506.116 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetToTypescript", "DotnetToTypescript\DotnetToTypescript.csproj", "{5934FD36-AA88-4A5D-966C-03D5FBFE0E5F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleLibrary", "SampleLibrary\SampleLibrary.csproj", "{FECE1669-35B3-43C9-A6DC-2A7AE5E7E835}"
@@ -9,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetToTypescript.Tests", "DotnetToTypescript.Tests\DotnetToTypescript.Tests.csproj", "{2A62FD26-E83C-407E-A7C9-622E7D5D329B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{64599056-1625-4E2B-A4C1-5997DF0136CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetToJavascript.Benchmarks", "DotnetToJavascript.Benchmarks\DotnetToJavascript.Benchmarks.csproj", "{2509DA7C-B0AC-4437-AE63-8DECABE3E1AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,10 +37,18 @@ Global
 		{2A62FD26-E83C-407E-A7C9-622E7D5D329B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A62FD26-E83C-407E-A7C9-622E7D5D329B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A62FD26-E83C-407E-A7C9-622E7D5D329B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2509DA7C-B0AC-4437-AE63-8DECABE3E1AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2509DA7C-B0AC-4437-AE63-8DECABE3E1AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2509DA7C-B0AC-4437-AE63-8DECABE3E1AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2509DA7C-B0AC-4437-AE63-8DECABE3E1AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{2A62FD26-E83C-407E-A7C9-622E7D5D329B} = {64599056-1625-4E2B-A4C1-5997DF0136CE}
 		{FECE1669-35B3-43C9-A6DC-2A7AE5E7E835} = {64599056-1625-4E2B-A4C1-5997DF0136CE}
 		{A2538817-6D31-47FF-B974-BE2027C46F3F} = {64599056-1625-4E2B-A4C1-5997DF0136CE}
+		{2A62FD26-E83C-407E-A7C9-622E7D5D329B} = {64599056-1625-4E2B-A4C1-5997DF0136CE}
+		{2509DA7C-B0AC-4437-AE63-8DECABE3E1AB} = {64599056-1625-4E2B-A4C1-5997DF0136CE}
 	EndGlobalSection
 EndGlobal

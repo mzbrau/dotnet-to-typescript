@@ -128,6 +128,14 @@ This tool is particularly useful when:
 - Task<T> → Promise<T>
 - Interfaces (mapped to concrete implementations)
 
+## Performance
+
+Using the extension method to get object names is very efficient.
+
+| Method                     | Mean     | Error     | StdDev    |
+|--------------------------- |---------:|----------:|----------:|
+| GetAttributeValueExtension | 1.035 us | 0.0681 us | 0.1966 us |
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -135,3 +143,14 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Roadmap
+
+- Add support for individual properties (e.g. int being available in the javascript file)
+- It only extracts the attributes correctly when the first dll contains the attributes, otherwise the first file is skipped.
+- Does not work for `Func<T>`
+- Add option to make the first letter lowercase
+- Add optional name parameter
+- Doesn't work with nested classes that have attributes
+- Should add shells for built in types (e.g. Exception, )
+
