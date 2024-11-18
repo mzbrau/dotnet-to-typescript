@@ -5,10 +5,10 @@ namespace DotnetToTypescript.Typescript;
 
 public class ScriptTypeExtractor : IScriptTypeExtractor
 {
-    private Type? _typeAttribute;
     private Type? _objectAttribute;
     public Dictionary<Type, string> ScriptCreateNames { get; } = new();
     public Dictionary<(Type Type, string PropertyName), string> ScriptPropertyNames { get; } = new();
+    public Type? TypeAttribute { get; private set; }
     private readonly ILogger<ScriptTypeExtractor> _logger;
 
     public ScriptTypeExtractor(ILogger<ScriptTypeExtractor> logger)
@@ -20,20 +20,20 @@ public class ScriptTypeExtractor : IScriptTypeExtractor
     {
         foreach (var assembly in assemblies)
         {
-            _typeAttribute ??= assembly.GetTypes()
+            TypeAttribute ??= assembly.GetTypes()
                 .FirstOrDefault(t => t.Name == "JavascriptTypeAttribute");
                 
             _objectAttribute ??= assembly.GetTypes()
                 .FirstOrDefault(t => t.Name == "JavascriptObjectAttribute");
 
-            if (_typeAttribute != null && _objectAttribute != null)
+            if (TypeAttribute != null && _objectAttribute != null)
                 break;
         }
     }
 
     public List<Type> ExtractScriptClasses(Assembly assembly)
     {
-        if (_typeAttribute is null)
+        if (TypeAttribute is null)
             return [];
 
         var scriptClasses = assembly.GetTypes()
@@ -46,9 +46,10 @@ public class ScriptTypeExtractor : IScriptTypeExtractor
     }
 
     private bool IsScriptClass(Type type) =>
-        type is { IsClass: true, IsPublic: true } && 
-        _typeAttribute is not null &&
-        type.GetCustomAttributes(_typeAttribute, false).Any();
+        type is { IsClass: true } && 
+        (type.IsNested ? type.IsNestedPublic : type.IsPublic) &&
+        TypeAttribute is not null &&
+        type.GetCustomAttributes(TypeAttribute, false).Any();
 
     private void ProcessObjectAttributes(List<Type> scriptClasses)
     {

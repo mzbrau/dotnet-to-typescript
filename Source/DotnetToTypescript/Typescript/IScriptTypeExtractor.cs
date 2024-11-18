@@ -4,6 +4,8 @@ namespace DotnetToTypescript.Typescript;
 
 public interface IScriptTypeExtractor
 {
+    Type? TypeAttribute { get; }
+    
     void InitializeAttributes(IEnumerable<Assembly> assemblies);
     
     List<Type> ExtractScriptClasses(Assembly assembly);

@@ -16,6 +16,7 @@ declare class Car {
     getMaintenanceHistory(): MaintenanceRecord[];
     addMaintenanceRecord(record: MaintenanceRecord): void;
 }
+
 declare class MaintenanceRecord {
     serviceDate: Date;
     description: string;
@@ -27,6 +28,7 @@ declare class MaintenanceRecord {
     apiKey: string;
     isEnabled: boolean;
 }
+
 declare class User {
     name: string;
     address: string;
@@ -39,13 +41,20 @@ declare class User {
     setPermission(permission: string, value: boolean): void;
     hasPermission(permission: string): boolean;
 }
+
 declare class CargoItem {
     itemId: string;
     description: string;
     weight: number;
     dimensions: { [key: string]: number };
     requiresRefrigeration: boolean;
+    cargo: InternalCargo;
 }
+
+declare class InternalCargo {
+    name: string;
+}
+
 declare class CargoManifest {
     manifestId: string;
     weight: number;
@@ -55,11 +64,13 @@ declare class CargoManifest {
     isHazardous: boolean | null;
     getHazardousMessage: () => string;
 }
+
 declare class LoadingResult {
     success: boolean;
     message: string;
     timestamp: Date;
 }
+
 declare class Truck {
     make: string;
     model: string;
@@ -74,6 +85,7 @@ declare class Truck {
     getDrivers(): User[];
     setDrivers(drivers: User[]): void;
 }
+
 // Enum Definitions
 declare enum CarType {
     Sedan = 0,

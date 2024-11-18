@@ -97,6 +97,9 @@ public class GenerateCommand
         var outputPathDts = _fileSystem.ChangeExtension(basePath, ".d.ts");
         _logger.LogInformation("Generating TypeScript definition file: {Path}", outputPathDts);
         
+        // Initialize the generator with the type attribute
+        _definitionGenerator.Initialize(_scriptTypeExtractor.TypeAttribute);
+        
         var typeScriptDefinition = _definitionGenerator.GenerateDefinitions(scriptClasses, preserveCase);
         await _fileSystem.WriteAllTextAsync(outputPathDts, typeScriptDefinition);
         

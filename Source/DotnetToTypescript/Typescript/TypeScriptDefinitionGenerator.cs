@@ -6,6 +6,12 @@ namespace DotnetToTypescript.Typescript;
 public class TypeScriptDefinitionGenerator : IDefinitionGenerator
 {
     private readonly TypeScriptTypeMapper _typeMapper = new();
+    private Type? _typeAttribute;
+
+    public void Initialize(Type typeAttribute)
+    {
+        _typeAttribute = typeAttribute;
+    }
 
     public string GenerateDefinitions(IEnumerable<Type> scriptClasses, bool preserveCase = false)
     {
@@ -92,6 +98,16 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         }
 
         sb.AppendLine("}");
+        sb.AppendLine();
+
+        // Process nested classes
+        var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
+            .Where(t => t.IsClass && _typeAttribute != null && t.GetCustomAttributes(_typeAttribute, false).Any());
+            
+        foreach (var nestedType in nestedTypes)
+        {
+            ProcessClass(nestedType, sb, processedTypes, preserveCase);
+        }
     }
 
     private string GetDefaultValueForType(Type type)

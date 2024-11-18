@@ -16,6 +16,7 @@ declare class Car {
     getMaintenanceHistory(): MaintenanceRecord[];
     addMaintenanceRecord(record: MaintenanceRecord): void;
 }
+
 declare class MaintenanceRecord {
     serviceDate: Date;
     description: string;
@@ -27,6 +28,7 @@ declare class MaintenanceRecord {
     apiKey: string;
     isEnabled: boolean;
 }
+
 declare class User {
     name: string;
     address: string;
@@ -39,6 +41,7 @@ declare class User {
     setPermission(permission: string, value: boolean): void;
     hasPermission(permission: string): boolean;
 }
+
 // Enum Definitions
 declare enum CarType {
     Sedan = 0,
