@@ -2,42 +2,42 @@
   TypeScriptDefinitions:
 // Class Definitions
 declare class Car {
-    Make: string;
-    Model: string;
-    Year: number;
-    FuelLevel: number;
-    IsRunning: boolean;
-    AuthorizedDrivers: User[];
-    ServiceCosts: { [key: string]: number };
-    Type: CarType;
-    StartEngineAsync(): Promise<boolean>;
-    RefuelAsync(amount: number): Promise<number>;
-    AddUser(user: User): boolean;
-    GetMaintenanceHistory(): MaintenanceRecord[];
-    AddMaintenanceRecord(record: MaintenanceRecord): void;
+    make: string;
+    model: string;
+    year: number;
+    fuelLevel: number;
+    isRunning: boolean;
+    authorizedDrivers: User[];
+    serviceCosts: { [key: string]: number };
+    type: CarType;
+    startEngineAsync(): Promise<boolean>;
+    refuelAsync(amount: number): Promise<number>;
+    addUser(user: User): boolean;
+    getMaintenanceHistory(): MaintenanceRecord[];
+    addMaintenanceRecord(record: MaintenanceRecord): void;
 }
 declare class MaintenanceRecord {
-    ServiceDate: Date;
-    Description: string;
-    Cost: number;
-    Mechanic: string;
-    PartsReplaced: string[];
-    IsWarrantyWork: boolean;
-    MaxRetries: number;
-    ApiKey: string;
-    IsEnabled: boolean;
+    serviceDate: Date;
+    description: string;
+    cost: number;
+    mechanic: string;
+    partsReplaced: string[];
+    isWarrantyWork: boolean;
+    maxRetries: number;
+    apiKey: string;
+    isEnabled: boolean;
 }
 declare class User {
-    Name: string;
-    Address: string;
-    DateOfBirth: Date;
-    PhoneNumbers: string[];
-    Permissions: { [key: string]: boolean };
-    Status: UserStatus;
-    ValidateAsync(): Promise<boolean>;
-    AddPhoneNumber(number: string): void;
-    SetPermission(permission: string, value: boolean): void;
-    HasPermission(permission: string): boolean;
+    name: string;
+    address: string;
+    dateOfBirth: Date;
+    phoneNumbers: string[];
+    permissions: { [key: string]: boolean };
+    status: UserStatus;
+    validateAsync(): Promise<boolean>;
+    addPhoneNumber(number: string): void;
+    setPermission(permission: string, value: boolean): void;
+    hasPermission(permission: string): boolean;
 }
 // Enum Definitions
 declare enum CarType {

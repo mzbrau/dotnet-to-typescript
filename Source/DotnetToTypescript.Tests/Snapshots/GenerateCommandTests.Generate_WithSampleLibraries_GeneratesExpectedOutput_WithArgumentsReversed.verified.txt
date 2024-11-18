@@ -2,77 +2,77 @@
   TypeScriptDefinitions:
 // Class Definitions
 declare class Car {
-    Make: string;
-    Model: string;
-    Year: number;
-    FuelLevel: number;
-    IsRunning: boolean;
-    AuthorizedDrivers: User[];
-    ServiceCosts: { [key: string]: number };
-    Type: CarType;
-    StartEngineAsync(): Promise<boolean>;
-    RefuelAsync(amount: number): Promise<number>;
-    AddUser(user: User): boolean;
-    GetMaintenanceHistory(): MaintenanceRecord[];
-    AddMaintenanceRecord(record: MaintenanceRecord): void;
+    make: string;
+    model: string;
+    year: number;
+    fuelLevel: number;
+    isRunning: boolean;
+    authorizedDrivers: User[];
+    serviceCosts: { [key: string]: number };
+    type: CarType;
+    startEngineAsync(): Promise<boolean>;
+    refuelAsync(amount: number): Promise<number>;
+    addUser(user: User): boolean;
+    getMaintenanceHistory(): MaintenanceRecord[];
+    addMaintenanceRecord(record: MaintenanceRecord): void;
 }
 declare class MaintenanceRecord {
-    ServiceDate: Date;
-    Description: string;
-    Cost: number;
-    Mechanic: string;
-    PartsReplaced: string[];
-    IsWarrantyWork: boolean;
-    MaxRetries: number;
-    ApiKey: string;
-    IsEnabled: boolean;
+    serviceDate: Date;
+    description: string;
+    cost: number;
+    mechanic: string;
+    partsReplaced: string[];
+    isWarrantyWork: boolean;
+    maxRetries: number;
+    apiKey: string;
+    isEnabled: boolean;
 }
 declare class User {
-    Name: string;
-    Address: string;
-    DateOfBirth: Date;
-    PhoneNumbers: string[];
-    Permissions: { [key: string]: boolean };
-    Status: UserStatus;
-    ValidateAsync(): Promise<boolean>;
-    AddPhoneNumber(number: string): void;
-    SetPermission(permission: string, value: boolean): void;
-    HasPermission(permission: string): boolean;
+    name: string;
+    address: string;
+    dateOfBirth: Date;
+    phoneNumbers: string[];
+    permissions: { [key: string]: boolean };
+    status: UserStatus;
+    validateAsync(): Promise<boolean>;
+    addPhoneNumber(number: string): void;
+    setPermission(permission: string, value: boolean): void;
+    hasPermission(permission: string): boolean;
 }
 declare class CargoItem {
-    ItemId: string;
-    Description: string;
-    Weight: number;
-    Dimensions: { [key: string]: number };
-    RequiresRefrigeration: boolean;
+    itemId: string;
+    description: string;
+    weight: number;
+    dimensions: { [key: string]: number };
+    requiresRefrigeration: boolean;
 }
 declare class CargoManifest {
-    ManifestId: string;
-    Weight: number;
-    Items: CargoItem[];
-    CustomsDeclarations: { [key: string]: string };
-    LoadingTime: Date;
-    IsHazardous: boolean | null;
-    GetHazardousMessage: () => string;
+    manifestId: string;
+    weight: number;
+    items: CargoItem[];
+    customsDeclarations: { [key: string]: string };
+    loadingTime: Date;
+    isHazardous: boolean | null;
+    getHazardousMessage: () => string;
 }
 declare class LoadingResult {
-    Success: boolean;
-    Message: string;
-    Timestamp: Date;
+    success: boolean;
+    message: string;
+    timestamp: Date;
 }
 declare class Truck {
-    Make: string;
-    Model: string;
-    Year: number;
-    CargoCapacity: number;
-    Drivers: User[];
-    CurrentCargo: CargoManifest;
-    Status: TruckStatus;
-    StartEngineAsync(): Promise<boolean>;
-    LoadCargoAsync(cargo: CargoManifest): Promise<LoadingResult>;
-    GetMaintenanceHistory(): MaintenanceRecord[];
-    GetDrivers(): User[];
-    SetDrivers(drivers: User[]): void;
+    make: string;
+    model: string;
+    year: number;
+    cargoCapacity: number;
+    drivers: User[];
+    currentCargo: CargoManifest;
+    status: TruckStatus;
+    startEngineAsync(): Promise<boolean>;
+    loadCargoAsync(cargo: CargoManifest): Promise<LoadingResult>;
+    getMaintenanceHistory(): MaintenanceRecord[];
+    getDrivers(): User[];
+    setDrivers(drivers: User[]): void;
 }
 // Enum Definitions
 declare enum CarType {

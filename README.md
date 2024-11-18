@@ -147,8 +147,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Roadmap
 
 
-- Does not work for `Func<T>`
-- Add option to make the first letter lowercase
 - Add optional name parameter
 - Doesn't work with nested classes that have attributes
 - Should add shells for built in types (e.g. Exception, )

@@ -31,7 +31,8 @@ var app = builder.Build();
 app.AddCommand("generate", (
     [Argument(Description = "Paths to DLL files")] string[] dllPaths,
     [Option('o', Description = "Output directory")] string? outputDirectory,
-    GenerateCommand command) => command.ExecuteAsync(dllPaths, outputDirectory));
+    [Option('p', Description = "Preserve original casing")] bool preserveCase,
+    GenerateCommand command) => command.ExecuteAsync(dllPaths, outputDirectory, preserveCase));
 
 try
 {

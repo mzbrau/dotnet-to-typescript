@@ -27,7 +27,7 @@ public class GenerateCommand
         _logger = logger;
     }
 
-    public async Task ExecuteAsync(string[] dllPaths, string? outputDirectory = null)
+    public async Task ExecuteAsync(string[] dllPaths, string? outputDirectory = null, bool preserveCase = false)
     {
         if (dllPaths.Length == 0)
         {
@@ -78,7 +78,7 @@ public class GenerateCommand
                 _fileSystem.CreateDirectory(outputDirectory);
             }
 
-            await GenerateDefinitionFile(basePath, scriptClasses);
+            await GenerateDefinitionFile(basePath, scriptClasses, preserveCase);
             await GenerateInstanceFile(basePath);
             
             _logger.LogInformation("TypeScript generation completed successfully");
@@ -90,12 +90,12 @@ public class GenerateCommand
         }
     }
 
-    private async Task GenerateDefinitionFile(string basePath, List<Type> scriptClasses)
+    private async Task GenerateDefinitionFile(string basePath, List<Type> scriptClasses, bool preserveCase)
     {
         var outputPathDts = _fileSystem.ChangeExtension(basePath, ".d.ts");
         _logger.LogInformation("Generating TypeScript definition file: {Path}", outputPathDts);
         
-        var typeScriptDefinition = _definitionGenerator.GenerateDefinitions(scriptClasses);
+        var typeScriptDefinition = _definitionGenerator.GenerateDefinitions(scriptClasses, preserveCase);
         await _fileSystem.WriteAllTextAsync(outputPathDts, typeScriptDefinition);
         
         _logger.LogInformation("Successfully generated TypeScript definition file");
