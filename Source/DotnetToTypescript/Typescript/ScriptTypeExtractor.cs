@@ -42,7 +42,7 @@ public class ScriptTypeExtractor : IScriptTypeExtractor
 
         ProcessObjectAttributes(scriptClasses);
         ProcessPropertyAttributes(scriptClasses);
-        return scriptClasses;
+        return scriptClasses.Where(c => !IsClassSkipped(c)).ToList();
     }
 
     private bool IsScriptClass(Type type) =>
@@ -50,6 +50,22 @@ public class ScriptTypeExtractor : IScriptTypeExtractor
         (type.IsNested ? type.IsNestedPublic : type.IsPublic) &&
         TypeAttribute is not null &&
         type.GetCustomAttributes(TypeAttribute, false).Any();
+
+    private bool IsClassSkipped(Type type)
+    {
+        if (TypeAttribute is not null)
+        {
+            var att = type.GetCustomAttributes(TypeAttribute, false).FirstOrDefault();
+            if (att is not null)
+            {
+                var skip = att.GetType().GetProperty("SkipDefinition")?.GetValue(att) as bool?;
+
+                return skip == true;
+            }
+        }
+
+        return false;
+    }
 
     private void ProcessObjectAttributes(List<Type> scriptClasses)
     {

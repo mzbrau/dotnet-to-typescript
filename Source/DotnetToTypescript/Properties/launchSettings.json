@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "DotnetToTypescript": {
-      "commandName": "Project",
-      "commandLineArgs": "generate C:\\Development\\s_v2\\Source\\Build\\Debug\\Saab.Security.Safe.Common.dll C:\\Development\\s_v2\\Source\\Build\\Debug\\Saab.Security.Safe.C2.Rule.RuleEngine.dll  -o C:\\temp"
-    }
-  }
-}
