@@ -42,7 +42,8 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         return sb.ToString();
     }
 
-    public string GenerateInstances(Dictionary<Type, string> scriptCreateNames, 
+    public string GenerateInstances(
+        Dictionary<(Type Type, string InstanceName), string> scriptCreateNames,
         Dictionary<(Type Type, string PropertyName), string> scriptPropertyNames,
         string definitionPath)
     {
@@ -56,7 +57,7 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         // Generate class instances
         foreach (var entry in scriptCreateNames)
         {
-            var typeName = entry.Key.Name;
+            var typeName = entry.Key.Type.Name;
             var instanceName = entry.Value;
             sb.AppendLine($"let {instanceName} = new {typeName}();");
         }

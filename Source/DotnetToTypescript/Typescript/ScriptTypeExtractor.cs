@@ -6,7 +6,7 @@ namespace DotnetToTypescript.Typescript;
 public class ScriptTypeExtractor : IScriptTypeExtractor
 {
     private Type? _objectAttribute;
-    public Dictionary<Type, string> ScriptCreateNames { get; } = new();
+    public Dictionary<(Type Type, string InstanceName), string> ScriptCreateNames { get; } = new();
     public Dictionary<(Type Type, string PropertyName), string> ScriptPropertyNames { get; } = new();
     public Type? TypeAttribute { get; private set; }
     private readonly ILogger<ScriptTypeExtractor> _logger;
@@ -74,8 +74,8 @@ public class ScriptTypeExtractor : IScriptTypeExtractor
 
         foreach (var type in scriptClasses)
         {
-            var objectAttribute = type.GetCustomAttributes(_objectAttribute, false).FirstOrDefault();
-            if (objectAttribute != null)
+            var objectAttributes = type.GetCustomAttributes(_objectAttribute, false);
+            foreach (var objectAttribute in objectAttributes)
             {
                 var name = objectAttribute.GetType().GetProperty("Name")?.GetValue(objectAttribute) as string;
                 if (!string.IsNullOrEmpty(name))
@@ -85,7 +85,7 @@ public class ScriptTypeExtractor : IScriptTypeExtractor
                         _logger.LogWarning("JavascriptObject name '{Name}' matches class name for type {Type}. This is not supported. Appending '2' to the name", name, type.Name);
                         name = $"{name}2";
                     }
-                    ScriptCreateNames[type] = name;
+                    ScriptCreateNames[(type, name)] = name;
                 }
             }
         }

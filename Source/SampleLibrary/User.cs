@@ -2,8 +2,10 @@
 
 namespace SampleLibrary;
 
+[JavascriptObject("dave")]
 [JavascriptType]
 [JavascriptObject("mike")]
+[JavascriptObject("jim")]
 public class User
 {
     public string Name { get; set; }

@@ -126,7 +126,9 @@ declare class Exception {
 
 let truck = new Truck();
 let MaintenanceRecord2 = new MaintenanceRecord();
+let dave = new User();
 let mike = new User();
+let jim = new User();
 let maxRetries = 0;
 let apiKey = "";
 let isEnabled = false;
