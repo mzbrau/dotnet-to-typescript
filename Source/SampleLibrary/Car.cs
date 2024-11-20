@@ -60,4 +60,13 @@ public class Car : IVehicle
     {
         Console.WriteLine($"Error: {exception.Message} at {timestamp}");
     }
+
+    public bool AddUsers(params User[] users)
+    {
+        foreach (var user in users)
+        {
+            AuthorizedDrivers.Add(user);
+        }
+        return true;
+    }
 }

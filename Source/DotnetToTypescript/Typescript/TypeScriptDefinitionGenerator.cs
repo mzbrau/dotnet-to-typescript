@@ -119,9 +119,27 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
                 TrackSystemType(parameter.ParameterType);
             }
 
-            var parameters = method.GetParameters()
-                .Select(p => $"{FormatName(p.Name!, preserveCase)}: {_typeMapper.MapToTypeScriptType(p.ParameterType)}")
-                .ToArray();
+            var parameters = new List<string>();
+            var methodParams = method.GetParameters();
+            
+            for (var i = 0; i < methodParams.Length; i++)
+            {
+                var param = methodParams[i];
+                var paramName = FormatName(param.Name!, preserveCase);
+                var paramType = _typeMapper.MapToTypeScriptType(param.ParameterType);
+                
+                if (param.GetCustomAttributes(typeof(ParamArrayAttribute), false).Any())
+                {
+                    // Handle params array by converting to rest parameter
+                    // Remove the [] from the end of the array type
+                    var elementType = paramType.TrimEnd('[', ']');
+                    parameters.Add($"...{paramName}: {elementType}[]");
+                }
+                else
+                {
+                    parameters.Add($"{paramName}: {paramType}");
+                }
+            }
 
             sb.AppendLine($"    {FormatName(method.Name, preserveCase)}({string.Join(", ", parameters)}): {_typeMapper.MapToTypeScriptType(method.ReturnType)};");
         }

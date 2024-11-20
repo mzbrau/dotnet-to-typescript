@@ -16,6 +16,7 @@ declare class Car {
     getMaintenanceHistory(): MaintenanceRecord[];
     addMaintenanceRecord(record: MaintenanceRecord): void;
     logError(exception: Exception, timestamp: Date): void;
+    addUsers(...users: User[]): boolean;
 }
 
 declare class MaintenanceRecord {
