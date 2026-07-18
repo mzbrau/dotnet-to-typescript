@@ -10,7 +10,8 @@ description: Practical workflow for keeping generated TypeScript current.
 1. Build the .NET solution
 2. Run `dotnet-to-typescript generate` against target assemblies
 3. Validate generated files in your TypeScript editor
-4. Commit generator inputs and outputs together
+4. Optionally pass `-t` to regenerate the Vitest harness, then run `npm test` in the output directory
+5. Commit generator inputs and outputs together
 
 ## CI workflow recommendation
 

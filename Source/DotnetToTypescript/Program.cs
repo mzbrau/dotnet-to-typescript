@@ -2,6 +2,7 @@
 using DotnetToTypescript.AssemblyHandling;
 using DotnetToTypescript.Commands;
 using DotnetToTypescript.IO;
+using DotnetToTypescript.Testing;
 using DotnetToTypescript.Typescript;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,6 +24,7 @@ builder.Services.AddLogging(loggingBuilder =>
 builder.Services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
 builder.Services.AddSingleton<IScriptTypeExtractor, ScriptTypeExtractor>();
 builder.Services.AddSingleton<IDefinitionGenerator, TypeScriptDefinitionGenerator>();
+builder.Services.AddSingleton<ITestEnvironmentGenerator, TestEnvironmentGenerator>();
 builder.Services.AddSingleton<IFileSystem, FileSystem>();
 builder.Services.AddSingleton<GenerateCommand>();
 
@@ -33,7 +35,11 @@ app.AddCommand("generate", (
     [Option('o', Description = "Output directory")] string? outputDirectory,
     [Option('p', Description = "Preserve original casing")] bool preserveCase,
     [Option('n', Description = "Output filename (without extension)")] string? outputName,
-    GenerateCommand command) => command.ExecuteAsync(dllPaths, outputDirectory, preserveCase, outputName));
+    [Option("js", Description = "Generate instance stubs as .js instead of .ts")] bool js,
+    [Option("javascript", Description = "Generate instance stubs as .js instead of .ts")] bool javascript,
+    [Option('t', Description = "Generate Vitest testing environment")] bool test,
+    GenerateCommand command) => command.ExecuteAsync(
+        dllPaths, outputDirectory, preserveCase, outputName, js || javascript, test));
 
 try
 {

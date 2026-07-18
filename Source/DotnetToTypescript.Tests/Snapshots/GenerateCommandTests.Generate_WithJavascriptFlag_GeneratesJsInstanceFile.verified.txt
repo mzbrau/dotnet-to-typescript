@@ -70,8 +70,9 @@ declare class Exception {
 
 
 ,
-  TypeScriptInstances:
-/// <reference path="custom-types.d.ts" />
+  JavaScriptInstances:
+// @ts-check
+/// <reference path="sample.d.ts" />
 
 let MaintenanceRecord2 = new MaintenanceRecord();
 let dave = new User();

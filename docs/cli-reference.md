@@ -20,6 +20,10 @@ dotnet-to-typescript generate <assembly1> [assembly2 ...] [options]
 - `-o, --output-directory <path>`: target directory for generated files
 - `-n, --output-name <name>`: custom output filename prefix (without extension)
 - `-p, --preserve-case`: preserve original C# member casing
+- `--js, --javascript`: generate instance stubs as `.js` instead of `.ts` (still emits `.d.ts`)
+- `-t, --test`: generate a Vitest testing environment (`package.json`, mocks, helpers, sample tests)
+
+Omitting `--js` / `-t` keeps the historical output (`.d.ts` + `.ts` only).
 
 ## Examples
 
@@ -40,3 +44,11 @@ Preserve C# casing:
 ```bash
 dotnet-to-typescript generate ./MyApp.dll --preserve-case
 ```
+
+Generate Vitest harness and JavaScript instance stubs:
+
+```bash
+dotnet-to-typescript generate ./MyApp.dll -o ./generated -t --js
+```
+
+See [Testing with Vitest](./testing.md) for the generated project layout and usage.

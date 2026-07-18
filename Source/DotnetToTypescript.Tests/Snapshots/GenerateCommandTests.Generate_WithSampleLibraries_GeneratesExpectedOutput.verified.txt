@@ -2,55 +2,55 @@
   TypeScriptDefinitions:
 // Class Definitions
 declare class Car {
-    make: string;
-    model: string;
-    year: number;
+    authorizedDrivers: User[];
     fuelLevel: number;
     isRunning: boolean;
-    authorizedDrivers: User[];
+    make: string;
+    model: string;
     serviceCosts: { [key: string]: number };
     type: CarType;
-    startEngineAsync(): Promise<boolean>;
-    refuelAsync(amount: number): Promise<number>;
-    addUser(user: User): boolean;
-    getMaintenanceHistory(): MaintenanceRecord[];
+    year: number;
     addMaintenanceRecord(record: MaintenanceRecord): void;
-    logError(exception: Exception, timestamp: Date): void;
+    addUser(user: User): boolean;
     addUsers(...users: User[]): boolean;
+    getMaintenanceHistory(): MaintenanceRecord[];
+    logError(exception: Exception, timestamp: Date): void;
+    refuelAsync(amount: number): Promise<number>;
+    startEngineAsync(): Promise<boolean>;
 }
 
 declare class MaintenanceRecord {
-    serviceDate: Date;
-    description: string;
+    apiKey: string;
     cost: number;
-    mechanic: string;
-    partsReplaced: string[];
+    description: string;
+    isEnabled: boolean;
     isWarrantyWork: boolean;
     maxRetries: number;
-    apiKey: string;
-    isEnabled: boolean;
+    mechanic: string;
+    partsReplaced: string[];
+    serviceDate: Date;
 }
 
 declare class User {
-    name: string;
     address: string;
     dateOfBirth: Date;
-    phoneNumbers: string[];
+    name: string;
     permissions: { [key: string]: boolean };
+    phoneNumbers: string[];
     status: UserStatus;
-    validateAsync(): Promise<boolean>;
     addPhoneNumber(number: string): void;
-    setPermission(permission: string, value: boolean): void;
     hasPermission(permission: string): boolean;
+    setPermission(permission: string, value: boolean): void;
+    validateAsync(): Promise<boolean>;
 }
 
 declare class CargoItem {
-    itemId: string;
-    description: string;
-    weight: number;
-    dimensions: { [key: string]: number };
-    requiresRefrigeration: boolean;
     cargo: InternalCargo;
+    description: string;
+    dimensions: { [key: string]: number };
+    itemId: string;
+    requiresRefrigeration: boolean;
+    weight: number;
 }
 
 declare class InternalCargo {
@@ -58,34 +58,34 @@ declare class InternalCargo {
 }
 
 declare class CargoManifest {
+    customsDeclarations: { [key: string]: string };
+    getHazardousMessage: () => string;
+    isHazardous: boolean | null;
+    items: CargoItem[];
+    loadingTime: Date;
     manifestId: string;
     weight: number;
-    items: CargoItem[];
-    customsDeclarations: { [key: string]: string };
-    loadingTime: Date;
-    isHazardous: boolean | null;
-    getHazardousMessage: () => string;
 }
 
 declare class LoadingResult {
-    success: boolean;
     message: string;
+    success: boolean;
     timestamp: Date;
 }
 
 declare class Truck {
+    cargoCapacity: number;
+    currentCargo: CargoManifest;
+    drivers: User[];
     make: string;
     model: string;
-    year: number;
-    cargoCapacity: number;
-    drivers: User[];
-    currentCargo: CargoManifest;
     status: TruckStatus;
-    startEngineAsync(): Promise<boolean>;
-    loadCargoAsync(cargo: CargoManifest): Promise<LoadingResult>;
-    getMaintenanceHistory(): MaintenanceRecord[];
+    year: number;
     getDrivers(): User[];
+    getMaintenanceHistory(): MaintenanceRecord[];
+    loadCargoAsync(cargo: CargoManifest): Promise<LoadingResult>;
     setDrivers(drivers: User[]): void;
+    startEngineAsync(): Promise<boolean>;
 }
 
 // Enum Definitions
