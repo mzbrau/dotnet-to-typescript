@@ -36,6 +36,7 @@ import { beforeEach } from "vitest";
 import { executeScript as runScript } from "./executeScript.js";
 import { resetMocks as doResetMocks } from "./resetMocks.js";
 import * as factories from "./factories.js";
+import { runRobustnessTests } from "./robustness/runRobustnessTests.js";
 
 /** @type {Record<string, unknown>} */
 let currentMocks = {};
@@ -55,10 +56,13 @@ export function executeScript(scriptPath) {
 Object.assign(globalThis, factories);
 globalThis.executeScript = executeScript;
 globalThis.resetMocks = resetMocks;
+globalThis.runRobustnessTests = runRobustnessTests;
 
 beforeEach(() => {
   resetMocks();
 });
+
+export { runRobustnessTests };
 
 ,
   MikeMock:

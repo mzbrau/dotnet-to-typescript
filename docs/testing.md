@@ -39,6 +39,10 @@ test/
   resetMocks.js
   factories.js
   mocks/
+  robustness/          # reflection-driven robustness engine
+    apiCatalog.js
+    runRobustnessTests.js
+    mutations/
   samples/
   scripts/
 ```
@@ -104,6 +108,53 @@ const context = executeScript("path/to/script.js");
 5. Returns the context
 
 Because mocks are shared by reference, `mockReturnValue` and `toHaveBeenCalled` work across the test and the script.
+
+## Robustness testing
+
+The harness includes `runRobustnessTests`, which executes a standalone script many times under deterministic mutations derived from reflection (not random fuzzing).
+
+```javascript
+import { runRobustnessTests } from "../robustness/runRobustnessTests.js";
+
+runRobustnessTests("scripts/alarm.js");
+```
+
+Or inside a suite:
+
+```javascript
+describe("Alarm Script", () => {
+  runRobustnessTests("scripts/alarm.js");
+});
+```
+
+Each scenario:
+
+1. Recreates mocks (`createAllMocks`)
+2. Applies baseline default return values for every reflected method
+3. Applies **one** mutation (null return, thrown exception, empty collection, …)
+4. Runs the script in a fresh `vm` context
+5. Fails the Vitest test with an actionable message if the script throws
+
+Toggle categories via options (all major categories default to enabled):
+
+```javascript
+runRobustnessTests("scripts/alarm.js", {
+  nulls: true,
+  undefineds: true,
+  emptyObjects: true,
+  recursiveNulls: true,
+  emptyCollections: true,
+  nullCollections: true,
+  emptyStrings: true,
+  whitespaceStrings: true,
+  numericBoundaries: false,
+  booleans: true,
+  exceptions: true,
+  missingOptionals: true,
+});
+```
+
+A generated example lives at `test/samples/robustness.test.js` (uses a defensive `robust-sample.js` so `npm test` stays green). Fragile scripts under test will fail scenarios such as “`api.getUser()` returned null”.
 
 ## Factories
 

@@ -302,6 +302,11 @@ public class GenerateCommandTests
             MikeMock = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "mocks", "mike.js")),
             SampleTest = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "samples", "sample.test.js")),
             SampleScript = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "scripts", "sample-script.js")),
+            RobustnessApiCatalog = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "robustness", "apiCatalog.js")),
+            RobustnessRunner = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "robustness", "runRobustnessTests.js")),
+            RobustnessMutationsIndex = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "robustness", "mutations", "index.js")),
+            RobustnessTest = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "samples", "robustness.test.js")),
+            RobustSampleScript = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "scripts", "robust-sample.js")),
             Readme = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "README.md")),
             HasTypeScriptInstances = File.Exists(Path.Combine(outputDirectory, "sample.ts")),
             HasJavaScriptInstances = File.Exists(Path.Combine(outputDirectory, "sample.js"))

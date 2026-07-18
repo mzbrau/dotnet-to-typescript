@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text;
 using DotnetToTypescript.IO;
+using DotnetToTypescript.Testing.Robustness;
 using DotnetToTypescript.Typescript;
 using Microsoft.Extensions.Logging;
 
@@ -32,10 +33,14 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
         var mocksDir = _fileSystem.Combine(testDir, "mocks");
         var samplesDir = _fileSystem.Combine(testDir, "samples");
         var scriptsDir = _fileSystem.Combine(testDir, "scripts");
+        var robustnessDir = _fileSystem.Combine(testDir, "robustness");
+        var mutationsDir = _fileSystem.Combine(robustnessDir, "mutations");
         _fileSystem.CreateDirectory(testDir);
         _fileSystem.CreateDirectory(mocksDir);
         _fileSystem.CreateDirectory(samplesDir);
         _fileSystem.CreateDirectory(scriptsDir);
+        _fileSystem.CreateDirectory(robustnessDir);
+        _fileSystem.CreateDirectory(mutationsDir);
 
         var globals = scriptCreateNames
             .Select(e => (GlobalName: MockCodeBuilder.SanitizeFileName(e.Value), Type: e.Key.Type))
@@ -66,6 +71,15 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
         await WriteFileAsync(_fileSystem.Combine(testDir, "resetMocks.js"), BuildResetMocks());
         await WriteFileAsync(_fileSystem.Combine(testDir, "setup.js"), BuildSetup(globals));
 
+        await WriteFileAsync(
+            _fileSystem.Combine(robustnessDir, "apiCatalog.js"),
+            ApiCatalogBuilder.BuildCatalogModule(globals, preserveCase));
+
+        foreach (var (relativePath, content) in RobustnessCodeBuilder.BuildEngineFiles())
+        {
+            await WriteFileAsync(_fileSystem.Combine(robustnessDir, relativePath), content);
+        }
+
         var sampleScriptName = "sample-script.js";
         await WriteFileAsync(
             _fileSystem.Combine(scriptsDir, sampleScriptName),
@@ -74,6 +88,15 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
         await WriteFileAsync(
             _fileSystem.Combine(samplesDir, "sample.test.js"),
             BuildSampleTest(globals, sampleScriptName));
+
+        const string robustScriptName = "robust-sample.js";
+        await WriteFileAsync(
+            _fileSystem.Combine(scriptsDir, robustScriptName),
+            BuildRobustSampleScript(globals));
+
+        await WriteFileAsync(
+            _fileSystem.Combine(samplesDir, "robustness.test.js"),
+            BuildRobustnessTest(robustScriptName));
 
         _logger.LogInformation("Vitest testing environment generated successfully");
     }
@@ -220,6 +243,7 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
         sb.AppendLine("import { executeScript as runScript } from \"./executeScript.js\";");
         sb.AppendLine("import { resetMocks as doResetMocks } from \"./resetMocks.js\";");
         sb.AppendLine("import * as factories from \"./factories.js\";");
+        sb.AppendLine("import { runRobustnessTests } from \"./robustness/runRobustnessTests.js\";");
         sb.AppendLine();
         sb.AppendLine("/** @type {Record<string, unknown>} */");
         sb.AppendLine("let currentMocks = {};");
@@ -239,10 +263,13 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
         sb.AppendLine("Object.assign(globalThis, factories);");
         sb.AppendLine("globalThis.executeScript = executeScript;");
         sb.AppendLine("globalThis.resetMocks = resetMocks;");
+        sb.AppendLine("globalThis.runRobustnessTests = runRobustnessTests;");
         sb.AppendLine();
         sb.AppendLine("beforeEach(() => {");
         sb.AppendLine("  resetMocks();");
         sb.AppendLine("});");
+        sb.AppendLine();
+        sb.AppendLine("export { runRobustnessTests };");
         sb.AppendLine();
 
         return sb.ToString();
@@ -372,6 +399,69 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
         return sb.ToString();
     }
 
+    private static string BuildRobustSampleScript(IReadOnlyList<(string GlobalName, Type Type)> globals)
+    {
+        if (globals.Count == 0)
+        {
+            return """
+                // @ts-check
+                // Robust sample — no JavascriptObject globals were found.
+                """;
+        }
+
+        var primary = PickSampleGlobal(globals);
+        var methods = ScriptMemberInspector.GetMethods(primary.Type);
+        var properties = ScriptMemberInspector.GetProperties(primary.Type);
+        var root = primary.GlobalName;
+
+        var sb = new StringBuilder();
+        sb.AppendLine("// @ts-check");
+        sb.AppendLine("// Defensive sample used by generated robustness tests.");
+        sb.AppendLine("// Guards null/undefined access and catches injected API exceptions.");
+        sb.AppendLine();
+        sb.AppendLine($"var root = typeof {root} !== \"undefined\" ? {root} : null;");
+        sb.AppendLine("if (root) {");
+
+        if (properties.Count > 0)
+        {
+            var propName = ScriptMemberInspector.FormatName(properties[0].Name, preserveCase: false);
+            sb.AppendLine($"  var value = root.{propName};");
+            sb.AppendLine("  if (value != null && String(value).trim() !== \"\") {");
+            sb.AppendLine("    // property present and non-blank");
+            sb.AppendLine("  }");
+        }
+
+        foreach (var method in methods.Take(3))
+        {
+            var methodName = ScriptMemberInspector.FormatName(method.Name, preserveCase: false);
+            sb.AppendLine("  try {");
+            sb.AppendLine($"    if (typeof root.{methodName} === \"function\") {{");
+            sb.AppendLine($"      root.{methodName}();");
+            sb.AppendLine("    }");
+            sb.AppendLine("  } catch (e) {");
+            sb.AppendLine("    // robustness: method may throw or return unexpected values");
+            sb.AppendLine("  }");
+        }
+
+        sb.AppendLine("}");
+        sb.AppendLine();
+        return sb.ToString();
+    }
+
+    private static string BuildRobustnessTest(string robustScriptName)
+    {
+        return $$"""
+            import path from "node:path";
+            import { fileURLToPath } from "node:url";
+            import { runRobustnessTests } from "../robustness/runRobustnessTests.js";
+
+            const __dirname = path.dirname(fileURLToPath(import.meta.url));
+            const robustScript = path.join(__dirname, "..", "scripts", "{{robustScriptName}}");
+
+            runRobustnessTests(robustScript);
+            """;
+    }
+
     private static string BuildReadme(
         IReadOnlyList<(string GlobalName, Type Type)> globals,
         string definitionFileName)
@@ -417,13 +507,27 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
             expect({{exampleGlobal}}.{{exampleMethod}}).toHaveBeenCalled();
             ```
 
+            ## Robustness testing
+
+            Run reflection-driven edge-case scenarios against a script:
+
+            ```javascript
+            import { runRobustnessTests } from "../robustness/runRobustnessTests.js";
+
+            runRobustnessTests("test/scripts/your-script.js");
+            ```
+
+            Categories (nulls, exceptions, numeric boundaries, …) can be toggled via the options object.
+            See `test/samples/robustness.test.js` for a generated example.
+
             Add `// @ts-check` at the top of scripts to type-check against `{{definitionFileName}}`.
 
             ## More documentation
 
-            See the project docs for Vitest setup details, mock configuration, factories, and recommended layout:
+            See the project docs for Vitest setup details, mock configuration, factories, robustness testing, and recommended layout:
             https://github.com/mzbrau/dotnet-to-typescript
 
             """;
     }
 }
+

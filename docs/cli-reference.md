@@ -21,7 +21,7 @@ dotnet-to-typescript generate <assembly1> [assembly2 ...] [options]
 - `-n, --output-name <name>`: custom output filename prefix (without extension)
 - `-p, --preserve-case`: preserve original C# member casing
 - `--js, --javascript`: generate instance stubs as `.js` instead of `.ts` (still emits `.d.ts`)
-- `-t, --test`: generate a Vitest testing environment (`package.json`, mocks, helpers, sample tests)
+- `-t, --test`: generate a Vitest testing environment (`package.json`, mocks, helpers, sample tests, and robustness engine)
 
 Omitting `--js` / `-t` keeps the historical output (`.d.ts` + `.ts` only).
 

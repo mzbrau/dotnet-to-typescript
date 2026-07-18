@@ -23,7 +23,7 @@ dotnet tool install dotnet-to-typescript --global
 - Preserves nullable types
 - Automatically tracks and generates definitions for referenced System types
 - Handles inheritance relationships between types
-- Optionally generates a Vitest testing environment (`-t`) with mocks, `executeScript`, and model factories
+- Optionally generates a Vitest testing environment (`-t`) with mocks, `executeScript`, model factories, and reflection-driven robustness tests
 - Optionally emits JavaScript instance stubs (`--js`) instead of TypeScript
 
 ## Usage

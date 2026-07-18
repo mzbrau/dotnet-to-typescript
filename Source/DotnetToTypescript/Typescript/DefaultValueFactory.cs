@@ -88,4 +88,26 @@ public static class DefaultValueFactory
             visited.Remove(type);
         }
     }
+
+    /// <summary>
+    /// Defaults used when configuring mock return values for robustness baseline scenarios.
+    /// Async methods are wrapped in Promise.resolve(...).
+    /// </summary>
+    public static string GetBaselineReturnExpression(Type type, bool preserveCase)
+    {
+        if (type == typeof(void))
+            return "undefined";
+
+        if (type == typeof(Task))
+            return "Promise.resolve()";
+
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
+        {
+            var inner = type.GetGenericArguments()[0];
+            var innerDefault = GetRecursiveDefaultExpression(inner, preserveCase);
+            return $"Promise.resolve({innerDefault})";
+        }
+
+        return GetRecursiveDefaultExpression(type, preserveCase);
+    }
 }
