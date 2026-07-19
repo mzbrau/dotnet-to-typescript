@@ -52,7 +52,7 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
         await WriteFileAsync(_fileSystem.Combine(outputDirectory, "package.json"), BuildPackageJson());
         await WriteFileAsync(_fileSystem.Combine(outputDirectory, "tsconfig.json"), BuildTsConfig(definitionFileName));
         await WriteFileAsync(_fileSystem.Combine(outputDirectory, "vitest.config.js"), BuildVitestConfig());
-        await WriteFileAsync(_fileSystem.Combine(outputDirectory, "README.md"), BuildReadme(globals, definitionFileName));
+        await WriteFileAsync(_fileSystem.Combine(outputDirectory, "README.md"), BuildReadme(globals, definitionFileName, preserveCase));
 
         foreach (var (globalName, type) in globals)
         {
@@ -83,16 +83,16 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
         var sampleScriptName = "sample-script.js";
         await WriteFileAsync(
             _fileSystem.Combine(scriptsDir, sampleScriptName),
-            BuildSampleScript(globals));
+            BuildSampleScript(globals, preserveCase));
 
         await WriteFileAsync(
             _fileSystem.Combine(samplesDir, "sample.test.js"),
-            BuildSampleTest(globals, sampleScriptName));
+            BuildSampleTest(globals, sampleScriptName, preserveCase));
 
         const string robustScriptName = "robust-sample.js";
         await WriteFileAsync(
             _fileSystem.Combine(scriptsDir, robustScriptName),
-            BuildRobustSampleScript(globals));
+            BuildRobustSampleScript(globals, preserveCase));
 
         await WriteFileAsync(
             _fileSystem.Combine(samplesDir, "robustness.test.js"),
@@ -281,7 +281,7 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
             ? withMethods
             : globals[0];
 
-    private static string BuildSampleScript(IReadOnlyList<(string GlobalName, Type Type)> globals)
+    private static string BuildSampleScript(IReadOnlyList<(string GlobalName, Type Type)> globals, bool preserveCase)
     {
         if (globals.Count == 0)
         {
@@ -302,13 +302,13 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
 
         if (properties.Count > 0)
         {
-            var propName = ScriptMemberInspector.FormatName(properties[0].Name, preserveCase: false);
+            var propName = ScriptMemberInspector.FormatName(properties[0].Name, preserveCase);
             sb.AppendLine($"var value = {primary.GlobalName}.{propName};");
         }
 
         if (methods.Count > 0)
         {
-            var methodName = ScriptMemberInspector.FormatName(methods[0].Name, preserveCase: false);
+            var methodName = ScriptMemberInspector.FormatName(methods[0].Name, preserveCase);
             sb.AppendLine($"{primary.GlobalName}.{methodName}();");
         }
         else if (properties.Count == 0)
@@ -321,7 +321,8 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
 
     private static string BuildSampleTest(
         IReadOnlyList<(string GlobalName, Type Type)> globals,
-        string sampleScriptName)
+        string sampleScriptName,
+        bool preserveCase)
     {
         var sb = new StringBuilder();
         sb.AppendLine("import path from \"node:path\";");
@@ -353,7 +354,7 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
 
         if (methods.Count > 0)
         {
-            var methodName = ScriptMemberInspector.FormatName(methods[0].Name, preserveCase: false);
+            var methodName = ScriptMemberInspector.FormatName(methods[0].Name, preserveCase);
             sb.AppendLine($"    {root}.{methodName}.mockReturnValue(undefined);");
             sb.AppendLine();
             sb.AppendLine("    globalThis.executeScript(sampleScript);");
@@ -371,7 +372,7 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
 
         if (methods.Count > 0)
         {
-            var methodName = ScriptMemberInspector.FormatName(methods[0].Name, preserveCase: false);
+            var methodName = ScriptMemberInspector.FormatName(methods[0].Name, preserveCase);
             sb.AppendLine("  test(\"throws when a method is called without mock configuration\", () => {");
             sb.AppendLine($"    expect(() => {root}.{methodName}()).toThrow(/No mock behaviour has been configured/);");
             sb.AppendLine("  });");
@@ -380,7 +381,7 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
 
         if (properties.Count > 0)
         {
-            var propName = ScriptMemberInspector.FormatName(properties[0].Name, preserveCase: false);
+            var propName = ScriptMemberInspector.FormatName(properties[0].Name, preserveCase);
             sb.AppendLine("  test(\"resets property values between tests\", () => {");
             sb.AppendLine($"    const original = {root}.{propName};");
             sb.AppendLine($"    {root}.{propName} = \"changed-in-test\";");
@@ -399,7 +400,7 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
         return sb.ToString();
     }
 
-    private static string BuildRobustSampleScript(IReadOnlyList<(string GlobalName, Type Type)> globals)
+    private static string BuildRobustSampleScript(IReadOnlyList<(string GlobalName, Type Type)> globals, bool preserveCase)
     {
         if (globals.Count == 0)
         {
@@ -424,7 +425,7 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
 
         if (properties.Count > 0)
         {
-            var propName = ScriptMemberInspector.FormatName(properties[0].Name, preserveCase: false);
+            var propName = ScriptMemberInspector.FormatName(properties[0].Name, preserveCase);
             sb.AppendLine($"  var value = root.{propName};");
             sb.AppendLine("  if (value != null && String(value).trim() !== \"\") {");
             sb.AppendLine("    // property present and non-blank");
@@ -433,7 +434,7 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
 
         foreach (var method in methods.Take(3))
         {
-            var methodName = ScriptMemberInspector.FormatName(method.Name, preserveCase: false);
+            var methodName = ScriptMemberInspector.FormatName(method.Name, preserveCase);
             sb.AppendLine("  try {");
             sb.AppendLine($"    if (typeof root.{methodName} === \"function\") {{");
             sb.AppendLine($"      root.{methodName}();");
@@ -464,7 +465,8 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
 
     private static string BuildReadme(
         IReadOnlyList<(string GlobalName, Type Type)> globals,
-        string definitionFileName)
+        string definitionFileName,
+        bool preserveCase)
     {
         var sampleGlobal = globals.Count > 0 ? PickSampleGlobal(globals) : default;
         var exampleGlobal = sampleGlobal.GlobalName ?? "myApi";
@@ -474,7 +476,7 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
         {
             var methods = ScriptMemberInspector.GetMethods(exampleType);
             if (methods.Count > 0)
-                exampleMethod = ScriptMemberInspector.FormatName(methods[0].Name, preserveCase: false);
+                exampleMethod = ScriptMemberInspector.FormatName(methods[0].Name, preserveCase);
         }
 
         return $$"""
@@ -530,4 +532,3 @@ public class TestEnvironmentGenerator : ITestEnvironmentGenerator
             """;
     }
 }
-

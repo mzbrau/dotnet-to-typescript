@@ -14,7 +14,13 @@ public static class ScriptMemberInspector
             .Where(m => !m.IsSpecialName)
             .OrderBy(m => m.Name, StringComparer.Ordinal)
             .ThenBy(m => m.GetParameters().Length)
+            .ThenBy(GetParameterSignature, StringComparer.Ordinal)
             .ToList();
+
+    private static string GetParameterSignature(MethodInfo method) =>
+        string.Join(
+            ",",
+            method.GetParameters().Select(p => $"{p.ParameterType.FullName ?? p.ParameterType.ToString()}:{p.Name}"));
 
     public static string FormatName(string name, bool preserveCase)
     {

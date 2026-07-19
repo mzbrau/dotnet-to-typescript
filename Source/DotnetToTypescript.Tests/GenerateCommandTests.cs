@@ -339,6 +339,39 @@ public class GenerateCommandTests
         }, settings);
     }
 
+    [Test]
+    public async Task Generate_WithTestAndPreserveCaseFlags_UsesOriginalMemberNamesInSamples()
+    {
+        var sampleLibraryPath = GetAssemblyPath(typeof(SampleLibrary.User).Assembly);
+        var outputDirectory = Path.Combine(_outputPath, "test-and-preserve-case");
+
+        await _command?.ExecuteAsync(
+            [sampleLibraryPath],
+            outputDirectory,
+            preserveCase: true,
+            outputName: "sample",
+            test: true)!;
+
+        var sampleScript = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "scripts", "sample-script.js"));
+        var sampleTest = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "samples", "sample.test.js"));
+        var robustSampleScript = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "test", "scripts", "robust-sample.js"));
+        var readme = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "README.md"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(sampleScript, Does.Contain("var value = dave.Address;"));
+            Assert.That(sampleScript, Does.Contain("dave.AddPhoneNumber();"));
+            Assert.That(sampleTest, Does.Contain("globalThis.dave.AddPhoneNumber.mockReturnValue(undefined);"));
+            Assert.That(sampleTest, Does.Contain("expect(globalThis.dave.AddPhoneNumber).toHaveBeenCalled();"));
+            Assert.That(sampleTest, Does.Contain("const original = globalThis.dave.Address;"));
+            Assert.That(sampleTest, Does.Contain("globalThis.dave.Address = \"changed-in-test\";"));
+            Assert.That(robustSampleScript, Does.Contain("var value = root.Address;"));
+            Assert.That(robustSampleScript, Does.Contain("if (typeof root.AddPhoneNumber === \"function\") {"));
+            Assert.That(readme, Does.Contain("dave.AddPhoneNumber.mockReturnValue"));
+            Assert.That(readme, Does.Contain("expect(dave.AddPhoneNumber).toHaveBeenCalled();"));
+        });
+    }
+
     private string GetAssemblyPath(Assembly assembly)
     {
         return assembly.Location;
