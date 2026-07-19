@@ -8,6 +8,10 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      checks: write
     
     steps:
     - uses: actions/checkout@v4
@@ -24,13 +28,34 @@ jobs:
       run: dotnet restore Source/DotnetToTypescript.sln
       
     - name: Build
-      run: dotnet build Source/DotnetToTypescript.sln --configuration Release --no-restore
+      run: |
+        set -o pipefail
+        dotnet build Source/DotnetToTypescript.sln --configuration Release --no-restore 2>&1 | tee build.log
       
     - name: Test
-      run: dotnet test Source/DotnetToTypescript.sln --configuration Release --no-build
+      run: >
+        dotnet test Source/DotnetToTypescript.sln --configuration Release --no-build
+        --results-directory ./test-results
+        --logger "trx;LogFileName=results.trx"
+        --collect:"XPlat Code Coverage"
+
+    - name: Publish test report
+      uses: mzbrau/actions-insights@v1
+      if: always()
+      continue-on-error: true
+      with:
+        test-results: '**/results.trx'
+        comment-mode: off
+        coverage-enabled: true
+        coverage-files: '**/coverage.cobertura.xml'
+        diagnostics-enabled: true
+        diagnostics-files: 'build.log'
+        history-enabled: true
+        history-repository: 'mzbrau/mzbrau-actions-insights'
+        history-token: ${{ secrets.ACTIONS_INSIGHTS_HISTORY_TOKEN }}
       
     - name: Pack
       run: dotnet pack Source/DotnetToTypescript/DotnetToTypescript.csproj --configuration Release --no-build -o nupkg
       
     - name: Push to NuGet
-      run: dotnet nuget push nupkg/*.nupkg --api-key ${{ secrets.NUGET_AUTH_TOKEN }} --source https://api.nuget.org/v3/index.json 
+      run: dotnet nuget push nupkg/*.nupkg --api-key ${{ secrets.NUGET_AUTH_TOKEN }} --source https://api.nuget.org/v3/index.json
