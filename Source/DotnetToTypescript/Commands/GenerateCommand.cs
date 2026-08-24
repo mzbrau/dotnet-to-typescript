@@ -1,5 +1,6 @@
 using DotnetToTypescript.AssemblyHandling;
 using DotnetToTypescript.IO;
+using DotnetToTypescript.Testing;
 using DotnetToTypescript.Typescript;
 using Microsoft.Extensions.Logging;
 
@@ -10,6 +11,7 @@ public class GenerateCommand
     private readonly IAssemblyLoader _assemblyLoader;
     private readonly IScriptTypeExtractor _scriptTypeExtractor;
     private readonly IDefinitionGenerator _definitionGenerator;
+    private readonly ITestEnvironmentGenerator _testEnvironmentGenerator;
     private readonly IFileSystem _fileSystem;
     private readonly ILogger<GenerateCommand> _logger;
 
@@ -17,17 +19,25 @@ public class GenerateCommand
         IAssemblyLoader assemblyLoader,
         IScriptTypeExtractor scriptTypeExtractor,
         IDefinitionGenerator definitionGenerator,
+        ITestEnvironmentGenerator testEnvironmentGenerator,
         IFileSystem fileSystem,
         ILogger<GenerateCommand> logger)
     {
         _assemblyLoader = assemblyLoader;
         _scriptTypeExtractor = scriptTypeExtractor;
         _definitionGenerator = definitionGenerator;
+        _testEnvironmentGenerator = testEnvironmentGenerator;
         _fileSystem = fileSystem;
         _logger = logger;
     }
 
-    public async Task ExecuteAsync(string[] dllPaths, string? outputDirectory = null, bool preserveCase = false, string? outputName = null)
+    public async Task ExecuteAsync(
+        string[] dllPaths,
+        string? outputDirectory = null,
+        bool preserveCase = false,
+        string? outputName = null,
+        bool javascript = false,
+        bool test = false)
     {
         if (dllPaths.Length == 0)
         {
@@ -81,7 +91,23 @@ public class GenerateCommand
             }
 
             await GenerateDefinitionFile(basePath, scriptClasses, preserveCase);
-            await GenerateInstanceFile(basePath);
+            await GenerateInstanceFile(basePath, javascript);
+
+            if (test)
+            {
+                var resolvedOutputDirectory = outputDirectory
+                    ?? _fileSystem.GetDirectoryName(basePath)
+                    ?? ".";
+                var definitionFileName = _fileSystem.GetFileNameWithoutExtension(basePath) + ".d.ts";
+
+                await _testEnvironmentGenerator.GenerateAsync(
+                    resolvedOutputDirectory,
+                    definitionFileName,
+                    scriptClasses,
+                    _scriptTypeExtractor.ScriptCreateNames,
+                    _scriptTypeExtractor.ScriptPropertyNames,
+                    preserveCase);
+            }
             
             _logger.LogInformation("TypeScript generation completed successfully");
         }
@@ -106,26 +132,28 @@ public class GenerateCommand
         _logger.LogInformation("Successfully generated TypeScript definition file");
     }
 
-    private async Task GenerateInstanceFile(string basePath)
+    private async Task GenerateInstanceFile(string basePath, bool javascript)
     {
         var outputPathDts = _fileSystem.ChangeExtension(basePath, ".d.ts");
-        _logger.LogInformation("Generating TypeScript instances file");
+        _logger.LogInformation("Generating {Kind} instances file", javascript ? "JavaScript" : "TypeScript");
         
         var typeScriptInstances = _definitionGenerator.GenerateInstances(
             _scriptTypeExtractor.ScriptCreateNames,
             _scriptTypeExtractor.ScriptPropertyNames,
-            outputPathDts);
+            outputPathDts,
+            javascript);
 
         if (!string.IsNullOrEmpty(typeScriptInstances))
         {
-            var outputPathTs = _fileSystem.ChangeExtension(basePath, ".ts");
-            _logger.LogInformation("Writing TypeScript instances file: {Path}", outputPathTs);
-            await _fileSystem.WriteAllTextAsync(outputPathTs, typeScriptInstances);
-            _logger.LogInformation("Successfully generated TypeScript instances file");
+            var extension = javascript ? ".js" : ".ts";
+            var outputPath = _fileSystem.ChangeExtension(basePath, extension);
+            _logger.LogInformation("Writing instances file: {Path}", outputPath);
+            await _fileSystem.WriteAllTextAsync(outputPath, typeScriptInstances);
+            _logger.LogInformation("Successfully generated instances file");
         }
         else
         {
-            _logger.LogInformation("No TypeScript instances to generate");
+            _logger.LogInformation("No instances to generate");
         }
     }
-} 
+}

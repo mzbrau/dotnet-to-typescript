@@ -31,6 +31,8 @@ When a .NET application executes JavaScript or TypeScript scripts, script author
 Each generation run creates:
 
 - `*.d.ts` for type definitions
-- `*.ts` for object instance stubs
+- `*.ts` for object instance stubs (or `*.js` when using `--js`)
+
+With `-t` / `--test`, the tool also emits a Vitest harness (`package.json`, mocks, `executeScript`, factories, and sample tests) so standalone Jint-style scripts can be tested with little setup.
 
 These files are designed to be committed into your scripting project or generated during CI.

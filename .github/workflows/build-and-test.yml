@@ -9,6 +9,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+      checks: write
 
     steps:
     - uses: actions/checkout@v4
@@ -24,7 +29,27 @@ jobs:
       run: dotnet restore Source/DotnetToTypescript.sln
       
     - name: Build
-      run: dotnet build Source/DotnetToTypescript.sln --no-restore
+      run: |
+        set -o pipefail
+        dotnet build Source/DotnetToTypescript.sln --no-restore 2>&1 | tee build.log
       
     - name: Test
-      run: dotnet test Source/DotnetToTypescript.sln --no-build --verbosity normal
+      run: >
+        dotnet test Source/DotnetToTypescript.sln --no-build --verbosity normal
+        --results-directory ./test-results
+        --logger "trx;LogFileName=results.trx"
+        --collect:"XPlat Code Coverage"
+
+    - name: Publish test report
+      uses: mzbrau/actions-insights@v1
+      if: always()
+      continue-on-error: true
+      with:
+        test-results: '**/results.trx'
+        coverage-enabled: true
+        coverage-files: '**/coverage.cobertura.xml'
+        diagnostics-enabled: true
+        diagnostics-files: 'build.log'
+        history-enabled: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        history-repository: 'mzbrau/mzbrau-actions-insights'
+        history-token: ${{ secrets.ACTIONS_INSIGHTS_HISTORY_TOKEN }}

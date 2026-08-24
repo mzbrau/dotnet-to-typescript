@@ -1,0 +1,91 @@
+﻿{
+  JavaScriptInstances:
+// @ts-check
+/// <reference path="sample.d.ts" />
+
+let MaintenanceRecord2 = new MaintenanceRecord();
+let dave = new User();
+let mike = new User();
+let jim = new User();
+let maxRetries = 0;
+let apiKey = "";
+let isEnabled = false;
+
+// Insert your script below
+// -------------------------
+
+,
+  HasTypeScriptInstances: false,
+  PackageJson:
+{
+  "name": "dotnet-to-typescript-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
+    "vitest": "^3.2.4"
+  }
+},
+  Setup:
+import { beforeEach } from "vitest";
+import { executeScript as runScript } from "./executeScript.js";
+import { resetMocks as doResetMocks } from "./resetMocks.js";
+import * as factories from "./factories.js";
+import { runRobustnessTests } from "./robustness/runRobustnessTests.js";
+
+/** @type {Record<string, unknown>} */
+let currentMocks = {};
+
+export function resetMocks() {
+  currentMocks = doResetMocks(globalThis);
+  return currentMocks;
+}
+
+/**
+ * @param {string} scriptPath
+ */
+export function executeScript(scriptPath) {
+  return runScript(scriptPath, currentMocks);
+}
+
+Object.assign(globalThis, factories);
+globalThis.executeScript = executeScript;
+globalThis.resetMocks = resetMocks;
+globalThis.runRobustnessTests = runRobustnessTests;
+
+beforeEach(() => {
+  resetMocks();
+});
+
+export { runRobustnessTests };
+
+,
+  MikeMock:
+import { vi } from "vitest";
+
+/**
+ * Mock builder for global `mike` (User).
+ * Methods are strict Vitest mocks — configure with mockReturnValue / mockImplementation.
+ */
+export function createMikeMock() {
+  return {
+    address: "",
+    dateOfBirth: new Date(0),
+    name: "",
+    permissions: {},
+    phoneNumbers: [],
+    status: 0,
+    addPhoneNumber: vi.fn(function (...args) { const formattedArgs = args.map((a) => { try { return JSON.stringify(a); } catch { return String(a); } }).join(", "); throw new Error(`mike.addPhoneNumber(${formattedArgs}) was called during script execution.\n\nNo mock behaviour has been configured.\n\nConfigure it using:\nmike.addPhoneNumber.mockReturnValue(...)`); }),
+    hasPermission: vi.fn(function (...args) { const formattedArgs = args.map((a) => { try { return JSON.stringify(a); } catch { return String(a); } }).join(", "); throw new Error(`mike.hasPermission(${formattedArgs}) was called during script execution.\n\nNo mock behaviour has been configured.\n\nConfigure it using:\nmike.hasPermission.mockReturnValue(...)`); }),
+    setPermission: vi.fn(function (...args) { const formattedArgs = args.map((a) => { try { return JSON.stringify(a); } catch { return String(a); } }).join(", "); throw new Error(`mike.setPermission(${formattedArgs}) was called during script execution.\n\nNo mock behaviour has been configured.\n\nConfigure it using:\nmike.setPermission.mockReturnValue(...)`); }),
+    validateAsync: vi.fn(function (...args) { const formattedArgs = args.map((a) => { try { return JSON.stringify(a); } catch { return String(a); } }).join(", "); throw new Error(`mike.validateAsync(${formattedArgs}) was called during script execution.\n\nNo mock behaviour has been configured.\n\nConfigure it using:\nmike.validateAsync.mockReturnValue(...)`); }),
+  };
+}
+
+
+}

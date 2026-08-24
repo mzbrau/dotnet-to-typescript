@@ -433,3 +433,5 @@ yarn-error.log*
 !/external
 
 *.received.*
+
+/JavascriptTest/

@@ -23,6 +23,8 @@ dotnet tool install dotnet-to-typescript --global
 - Preserves nullable types
 - Automatically tracks and generates definitions for referenced System types
 - Handles inheritance relationships between types
+- Optionally generates a Vitest testing environment (`-t`) with mocks, `executeScript`, model factories, and reflection-driven robustness tests
+- Optionally emits JavaScript instance stubs (`--js`) instead of TypeScript
 
 ## Usage
 
@@ -94,18 +96,28 @@ dotnet-to-typescript generate path/to/your/assembly1.dll path/to/your/assembly2.
 The attributes need to be defined in one of the assemblies.
 
 Optional parameters:
-Optional parameters:
 - `-o, --output-directory`: Specify output directory for generated files
 - `-p, --preserve-case`: Preserve original casing in property and method names
 - `-n, --output-name`: Specify the output filename (without extension)
+- `--js, --javascript`: Generate instance stubs as `.js` instead of `.ts`
+- `-t, --test`: Generate a Vitest testing environment for standalone scripts
 
 ### 5. Review the sample output
 
 2 files will be created in the same directory as the assembly (or specified output directory):
 
 - `assembly.d.ts` - TypeScript definitions, same name as the assembly
-- `assembly.ts` - TypeScript instances, same name as the assembly
+- `assembly.ts` - TypeScript instances, same name as the assembly (or `.js` with `--js`)
 
+With `-t`, the tool also writes `package.json`, Vitest/TypeScript config, mocks, helpers, and sample tests. Then:
+
+```bash
+cd <output-directory>
+npm install
+npm test
+```
+
+See [docs/testing.md](docs/testing.md) for mock configuration, `executeScript`, factories, and coverage.
 ```typescript
 // assembly.d.ts
 declare class Car {

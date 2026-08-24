@@ -45,9 +45,15 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
     public string GenerateInstances(
         Dictionary<(Type Type, string InstanceName), string> scriptCreateNames,
         Dictionary<(Type Type, string PropertyName), string> scriptPropertyNames,
-        string definitionPath)
+        string definitionPath,
+        bool asJavascript = false)
     {
         var sb = new StringBuilder();
+
+        if (asJavascript)
+        {
+            sb.AppendLine("// @ts-check");
+        }
         
         // Add reference to definition file
         var definitionFile = Path.GetFileName(definitionPath);
@@ -69,7 +75,7 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
             var propertyInfo = propertyType.GetProperty(entry.Key.PropertyName);
             if (propertyInfo != null)
             {
-                var defaultValue = GetDefaultValueForType(propertyInfo.PropertyType);
+                var defaultValue = DefaultValueFactory.GetSimpleDefaultExpression(propertyInfo.PropertyType);
                 sb.AppendLine($"let {entry.Value} = {defaultValue};");
             }
         }
@@ -97,17 +103,16 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         sb.AppendLine($"declare class {type.Name} {{");
 
         // Process properties
-        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+        var properties = ScriptMemberInspector.GetProperties(type);
         foreach (var prop in properties)
         {
             // Track system types from property types
             TrackSystemType(prop.PropertyType);
-            sb.AppendLine($"    {FormatName(prop.Name, preserveCase)}: {_typeMapper.MapToTypeScriptType(prop.PropertyType)};");
+            sb.AppendLine($"    {ScriptMemberInspector.FormatName(prop.Name, preserveCase)}: {_typeMapper.MapToTypeScriptType(prop.PropertyType)};");
         }
 
         // Process methods
-        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-            .Where(m => !m.IsSpecialName);
+        var methods = ScriptMemberInspector.GetMethods(type);
         foreach (var method in methods)
         {
             // Track system types from return type
@@ -125,7 +130,7 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
             for (var i = 0; i < methodParams.Length; i++)
             {
                 var param = methodParams[i];
-                var paramName = FormatName(param.Name!, preserveCase);
+                var paramName = ScriptMemberInspector.FormatName(param.Name!, preserveCase);
                 var paramType = _typeMapper.MapToTypeScriptType(param.ParameterType);
                 
                 if (param.GetCustomAttributes(typeof(ParamArrayAttribute), false).Any())
@@ -141,7 +146,7 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
                 }
             }
 
-            sb.AppendLine($"    {FormatName(method.Name, preserveCase)}({string.Join(", ", parameters)}): {_typeMapper.MapToTypeScriptType(method.ReturnType)};");
+            sb.AppendLine($"    {ScriptMemberInspector.FormatName(method.Name, preserveCase)}({string.Join(", ", parameters)}): {_typeMapper.MapToTypeScriptType(method.ReturnType)};");
         }
 
         sb.AppendLine("}");
@@ -149,7 +154,8 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
 
         // Process nested classes
         var nestedTypes = type.GetNestedTypes(BindingFlags.Public)
-            .Where(t => t.IsClass && _typeAttribute != null && t.GetCustomAttributes(_typeAttribute, false).Length != 0);
+            .Where(t => t.IsClass && _typeAttribute != null && t.GetCustomAttributes(_typeAttribute, false).Length != 0)
+            .OrderBy(t => t.Name, StringComparer.Ordinal);
             
         foreach (var nestedType in nestedTypes)
         {
@@ -191,23 +197,6 @@ public class TypeScriptDefinitionGenerator : IDefinitionGenerator
         {
             _systemTypes.Add(type);
         }
-    }
-
-    private string GetDefaultValueForType(Type type)
-    {
-        if (type == typeof(string)) return "\"\"";
-        if (type == typeof(bool)) return "false";
-        if (type == typeof(DateTime)) return "new Date()";
-        if (type.IsValueType) return "0";
-        return "null";
-    }
-
-    private string FormatName(string name, bool preserveCase)
-    {
-        if (preserveCase)
-            return name;
-        
-        return char.ToLower(name[0]) + name.Substring(1);
     }
 
     private string GenerateSystemTypeDefinitions()

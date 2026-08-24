@@ -8,5 +8,6 @@ public interface IDefinitionGenerator
     string GenerateInstances(
         Dictionary<(Type Type, string InstanceName), string> scriptCreateNames,
         Dictionary<(Type Type, string PropertyName), string> scriptPropertyNames,
-        string definitionPath);
+        string definitionPath,
+        bool asJavascript = false);
 }
